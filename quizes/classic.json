@@ -1,0 +1,56 @@
+{
+    "name": "Classic",
+    "description": "Classic quiz",
+    "type": "classic",
+    "questions": [
+        {
+            "question": "What is the capital of France?",
+            "image": "https://i.pinimg.com/736x/7b/de/e5/7bdee5a30249a67d9c65187a8417937a.jpg",
+            "options": [
+                    {
+                        "text": "Paris",
+                        "score": 2,
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "London",
+                        "score": 1,
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Berlin",
+                        "score": 0,
+                        "isCorrect": false
+                    }
+                    
+            ],
+            "explanation": "Paris is the capital of France"
+        },
+        {
+            "question": "What is the capital of Germany?",
+            "options": [
+                    {
+                        "text": "Paris",
+                        "score": 0,
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "London",
+                        "score": 1,
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Berlin",
+                        "score": 2,
+                        "isCorrect": false
+                    }
+                    
+            ]
+        }
+    ],
+    "result": {
+        "0-1": "you know nothing",
+        "2-3": "you know a little",
+        "4-5": "you know a lot"
+    }
+}

@@ -30,8 +30,8 @@ func (r *DefaultRepository) GetGamesByIDs(ctx context.Context, ids []uuid.UUID) 
 		select 
 			id, 
 			payload, 
-			created_at,
-		from game
+			created_at
+		from easy_quizy_game
 		where id = any($1)
 	`
 
@@ -56,8 +56,8 @@ func (r *DefaultRepository) GetGameSession(ctx context.Context, gameID uuid.UUID
 			game_id,
             player_id,
             question_id,
-    		answer_id,
-		from game_session
+    		answer_id
+		from easy_quizy_game_session
 		where game_id = $1 and player_id = $2
 	`
 

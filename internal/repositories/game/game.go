@@ -2,8 +2,8 @@ package game
 
 import (
 	"context"
-	"quizzly-v2/internal/model"
-	"quizzly-v2/pkg/structs/collections/slices"
+	"easy-quizy/internal/model"
+	"easy-quizy/pkg/structs/collections/slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +22,7 @@ type (
 		PlayerID   uuid.UUID `db:"player_id"`
 		QuestionID int64     `db:"question_id"`
 		AnswerID   int64     `db:"answer_id"`
+		IsCorrect  bool      `db:"is_correct"`
 	}
 )
 
@@ -48,6 +49,26 @@ func (r *DefaultRepository) GetGamesByIDs(ctx context.Context, ids []uuid.UUID) 
 	return slices.Map(result, func(i sqlxGame) (model.Game, error) {
 		return convertToGame(i)
 	})
+}
+
+func (r *DefaultRepository) InsertGameSessionAnswer(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID, data model.GameSessionAnswer) error {
+	const query = `
+		insert into easy_quizy_game_session
+		(game_id, player_id, question_id, answer_id, is_correct)
+		values ($1, $2, $3, $4, $5)
+	`
+
+	_, err := r.db(ctx).ExecContext(
+		ctx,
+		query,
+		gameID,
+		playerID,
+		data.QuestionID,
+		data.AnswerID,
+		data.IsCorrect,
+	)
+
+	return err
 }
 
 func (r *DefaultRepository) GetGameSession(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) (model.GameSession, error) {

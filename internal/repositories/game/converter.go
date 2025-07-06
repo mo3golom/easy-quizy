@@ -1,9 +1,9 @@
 package game
 
 import (
+	"easy-quizy/internal/model"
 	"encoding/json"
 	"fmt"
-	"quizzly-v2/internal/model"
 	"strconv"
 	"strings"
 )
@@ -58,16 +58,18 @@ func rawToGame(rg rawGame) (model.Game, error) {
 		return model.Game{}, err
 	}
 	var questions []model.Question
-	for _, rq := range rg.Questions {
+	for idxq, rq := range rg.Questions {
 		var options []model.AnswerOption
-		for _, ro := range rq.Options {
+		for idxao, ro := range rq.Options {
 			options = append(options, model.AnswerOption{
+				ID:        int64(idxao),
 				Answer:    ro.Text,
 				IsCorrect: ro.IsCorrect,
 				Score:     ro.Score,
 			})
 		}
 		questions = append(questions, model.Question{
+			ID:            int64(idxq),
 			Text:          rq.Question,
 			ImageID:       rq.Image,
 			Explanation:   rq.Explanation,
@@ -112,6 +114,7 @@ func convertToSession(in []sqlxGameSession) model.GameSession {
 		result.Answers = append(result.Answers, model.GameSessionAnswer{
 			QuestionID: item.QuestionID,
 			AnswerID:   item.AnswerID,
+			IsCorrect:  item.IsCorrect,
 		})
 	}
 

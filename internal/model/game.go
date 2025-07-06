@@ -33,9 +33,11 @@ type (
 	GameSessionAnswer struct {
 		QuestionID int64
 		AnswerID   int64
+		IsCorrect  bool
 	}
 
 	Question struct {
+		ID            int64
 		Text          string
 		ImageID       *string
 		Explanation   *string
@@ -43,6 +45,7 @@ type (
 	}
 
 	AnswerOption struct {
+		ID        int64
 		Answer    string
 		IsCorrect bool
 		Score     *int64

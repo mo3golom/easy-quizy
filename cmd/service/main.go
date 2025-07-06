@@ -16,9 +16,9 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 
-	gameAPI "quizzly-v2/api/v1/game"
-	gameRepo "quizzly-v2/internal/repositories/game"
-	gameUC "quizzly-v2/internal/usecase/game"
+	gameAPI "easy-quizy/api/v1/game"
+	gameRepo "easy-quizy/internal/repositories/game"
+	gameUC "easy-quizy/internal/usecase/game"
 )
 
 func main() {

@@ -1,9 +1,9 @@
 package game
 
 import (
-	"quizzly-v2/internal/contracts"
-	"quizzly-v2/internal/model"
-	"quizzly-v2/internal/usecase/game/acceptor"
+	"easy-quizy/internal/contracts"
+	"easy-quizy/internal/model"
+	"easy-quizy/internal/usecase/game/acceptor"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 )

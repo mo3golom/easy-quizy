@@ -1,9 +1,9 @@
 package acceptor
 
 import (
+	"easy-quizy/internal/contracts"
+	"easy-quizy/internal/model"
 	"errors"
-	"quizzly-v2/internal/contracts"
-	"quizzly-v2/internal/model"
 )
 
 type ClassicAcceptor struct{}
@@ -19,8 +19,8 @@ func (a *ClassicAcceptor) Accept(question *model.Question, answers []int64) (*co
 
 	correctAnswers := question.GetCorrectAnswers()
 	correctAnswersMap := make(map[int64]struct{}, len(correctAnswers))
-	for id := range correctAnswers {
-		correctAnswersMap[int64(id)] = struct{}{}
+	for _, item := range correctAnswers {
+		correctAnswersMap[item.ID] = struct{}{}
 	}
 
 	_, ok := correctAnswersMap[answers[0]]

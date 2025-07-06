@@ -1,7 +1,7 @@
 package game
 
 import (
-	"quizzly-v2/internal/model"
+	"easy-quizy/internal/model"
 )
 
 type AnswerOption struct {
@@ -10,6 +10,7 @@ type AnswerOption struct {
 }
 
 type Question struct {
+	ID            int64
 	Text          string         `json:"text"`
 	ImageID       *string        `json:"image_id,omitempty"`
 	AnswerOptions []AnswerOption `json:"answer_options"`
@@ -31,6 +32,15 @@ type StateResponse struct {
 	Progress Progress  `json:"progress"`
 }
 
+type AcceptAnswerRequest struct {
+	QuestionID int64 `json:"questionId"`
+	AnswerID   int64 `json:"answerId"`
+}
+
+type AcceptAnswerResponse struct {
+	IsCorrect bool `json:"isCorrect"`
+}
+
 func toStateResponse(state *model.State) *StateResponse {
 	resp := &StateResponse{
 		Progress: Progress{
@@ -41,13 +51,14 @@ func toStateResponse(state *model.State) *StateResponse {
 
 	if state.Question != nil {
 		resp.Question = &Question{
+			ID:            state.Question.ID,
 			Text:          state.Question.Text,
 			ImageID:       state.Question.ImageID,
 			AnswerOptions: make([]AnswerOption, len(state.Question.AnswerOptions)),
 		}
 		for i, opt := range state.Question.AnswerOptions {
 			resp.Question.AnswerOptions[i] = AnswerOption{
-				ID:     int64(i),
+				ID:     opt.ID,
 				Answer: opt.Answer,
 			}
 		}

@@ -2,8 +2,8 @@ package contracts
 
 import (
 	"context"
+	"easy-quizy/internal/model"
 	"errors"
-	"quizzly-v2/internal/model"
 
 	"github.com/google/uuid"
 )

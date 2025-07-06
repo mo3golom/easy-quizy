@@ -1,4 +1,4 @@
-module quizzly-v2
+module easy-quizy
 
 go 1.24.2
 

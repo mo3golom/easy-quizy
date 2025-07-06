@@ -2,8 +2,8 @@ package game
 
 import (
 	"context"
+	"easy-quizy/internal/model"
 	"errors"
-	"quizzly-v2/internal/model"
 
 	"github.com/google/uuid"
 )
@@ -39,13 +39,13 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 
 		// Ищем следующий вопрос
 		nextQuestionFound := false
-		for idx := range specificGame.Questions {
-			if _, ok := answeredMap[int64(idx)]; ok {
+		for _, item := range specificGame.Questions {
+			if _, ok := answeredMap[item.ID]; ok {
 				continue
 			}
 
 			// Неотвеченный вопрос найден
-			result.Question = &specificGame.Questions[idx]
+			result.Question = &specificGame.Questions[item.ID]
 			nextQuestionFound = true
 			break
 		}
@@ -62,8 +62,8 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 			}
 			question := specificGame.Questions[ans.QuestionID]
 			found := false
-			for optIdx, opt := range question.AnswerOptions {
-				if int64(optIdx) == ans.AnswerID {
+			for _, opt := range question.AnswerOptions {
+				if opt.ID == ans.AnswerID {
 					score := int64(1)
 					if opt.Score != nil {
 						score = *opt.Score

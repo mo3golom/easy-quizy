@@ -4,6 +4,7 @@ create table if not exists easy_quizy_game_session (
     player_id UUID not null,
     question_id int not null,
     answer_id int not null,
+    is_correct bool not null,
     created_at TIMESTAMPTZ not null default NOW(),
 
     foreign key (game_id) references easy_quizy_game (id)

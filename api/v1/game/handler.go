@@ -1,9 +1,9 @@
 package game
 
 import (
+	"easy-quizy/internal/contracts"
 	"errors"
 	"net/http"
-	"quizzly-v2/internal/contracts"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -26,6 +26,7 @@ func NewHandler(usecase contracts.GameUsecase) *Handler {
 func (h *Handler) Register(router *gin.RouterGroup) {
 	gameGroup := router.Group("/api/game")
 	gameGroup.GET("/:game_id", h.getCurrentState)
+	gameGroup.POST("/:game_id/accept-answer", h.acceptAnswer)
 }
 
 func (h *Handler) getCurrentState(c *gin.Context) {
@@ -59,4 +60,47 @@ func (h *Handler) getCurrentState(c *gin.Context) {
 
 	response := toStateResponse(state)
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) acceptAnswer(c *gin.Context) {
+	gameIDStr := c.Param("game_id")
+	gameID, err := uuid.Parse(gameIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid game_id format"})
+		return
+	}
+
+	playerIDStr := c.GetHeader(playerIDHeader)
+	if playerIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "header X-Player-ID is required"})
+		return
+	}
+	playerID, err := uuid.Parse(playerIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid player_id format"})
+		return
+	}
+
+	var req AcceptAnswerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body: " + err.Error()})
+		return
+	}
+
+	out, err := h.usecase.AcceptAnswer(c.Request.Context(), &contracts.AcceptAnswersIn{
+		GameID:     gameID,
+		PlayerID:   playerID,
+		QuestionID: req.QuestionID,
+		Answer:     req.AnswerID,
+	})
+	if err != nil {
+		if errors.Is(err, contracts.ErrGameNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, AcceptAnswerResponse{IsCorrect: out.IsCorrect})
 }

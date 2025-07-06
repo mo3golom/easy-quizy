@@ -2,8 +2,8 @@ package game
 
 import (
 	"context"
-	"quizzly-v2/internal/contracts"
-	"quizzly-v2/internal/model"
+	"easy-quizy/internal/contracts"
+	"easy-quizy/internal/model"
 
 	"github.com/google/uuid"
 )

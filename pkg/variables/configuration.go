@@ -1,10 +1,10 @@
 package variables
 
 import (
+	"easy-quizy/pkg/structs"
 	"errors"
 	"fmt"
 	"os"
-	"quizzly-v2/pkg/structs"
 	"strings"
 )
 

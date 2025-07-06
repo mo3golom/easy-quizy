@@ -102,5 +102,8 @@ func (h *Handler) acceptAnswer(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, AcceptAnswerResponse{IsCorrect: out.IsCorrect})
+	c.JSON(http.StatusOK, AcceptAnswerResponse{
+		IsCorrect:   out.IsCorrect,
+		Explanation: out.Explanation,
+	})
 }

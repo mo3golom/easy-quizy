@@ -38,7 +38,8 @@ type AcceptAnswerRequest struct {
 }
 
 type AcceptAnswerResponse struct {
-	IsCorrect bool `json:"isCorrect"`
+	IsCorrect   bool    `json:"isCorrect"`
+	Explanation *string `json:"explanation,omitempty"`
 }
 
 func toStateResponse(state *model.State) *StateResponse {

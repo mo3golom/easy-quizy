@@ -52,7 +52,6 @@ func parseScoreResults(resultMap map[string]string) ([]model.ScoreResult, error)
 }
 
 func rawToGame(rg rawGame) (model.Game, error) {
-
 	scoreResults, err := parseScoreResults(rg.Result)
 	if err != nil {
 		return model.Game{}, err
@@ -77,7 +76,6 @@ func rawToGame(rg rawGame) (model.Game, error) {
 		})
 	}
 	return model.Game{
-		Type:         model.GameType(rg.Type),
 		Title:        rg.Name,
 		Description:  rg.Description,
 		Questions:    questions,
@@ -96,6 +94,7 @@ func convertToGame(in sqlxGame) (model.Game, error) {
 	}
 
 	game.ID = in.ID
+	game.Type = model.GameType(in.Type)
 	return game, nil
 }
 

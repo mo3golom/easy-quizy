@@ -2,8 +2,11 @@ package game
 
 import (
 	"context"
+	"database/sql"
+	"easy-quizy/internal/contracts"
 	"easy-quizy/internal/model"
 	"easy-quizy/pkg/structs/collections/slices"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +16,7 @@ import (
 type (
 	sqlxGame struct {
 		ID        uuid.UUID `db:"id"`
+		Type      string    `db:"type"`
 		Payload   []byte    `db:"payload"`
 		CreatedAt time.Time `db:"created_at"`
 	}
@@ -29,7 +33,8 @@ type (
 func (r *DefaultRepository) GetGamesByIDs(ctx context.Context, ids []uuid.UUID) ([]model.Game, error) {
 	const query = `
 		select 
-			id, 
+			id,
+			type, 
 			payload, 
 			created_at
 		from easy_quizy_game
@@ -51,6 +56,33 @@ func (r *DefaultRepository) GetGamesByIDs(ctx context.Context, ids []uuid.UUID) 
 	})
 }
 
+func (r *DefaultRepository) GetDailyGame(ctx context.Context) (model.Game, error) {
+	const query = `
+		select 
+			id, 
+			type, 
+			payload, 
+			created_at
+		from easy_quizy_game
+		where type = $1
+		  and created_at >= date_trunc('day', now() at time zone 'utc')
+		  and created_at < date_trunc('day', now() at time zone 'utc') + interval '1 day'
+		order by created_at asc
+		limit 1
+	`
+
+	var result sqlxGame
+	if err := r.db(ctx).GetContext(ctx, &result, query, model.GameTypeDaily); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Game{}, contracts.ErrGameNotFound
+		}
+
+		return model.Game{}, err
+	}
+
+	return convertToGame(result)
+}
+
 func (r *DefaultRepository) InsertGameSessionAnswer(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID, data model.GameSessionAnswer) error {
 	const query = `
 		insert into easy_quizy_game_session
@@ -66,6 +98,22 @@ func (r *DefaultRepository) InsertGameSessionAnswer(ctx context.Context, gameID 
 		data.QuestionID,
 		data.AnswerID,
 		data.IsCorrect,
+	)
+
+	return err
+}
+
+func (r *DefaultRepository) DeleteGameSessionAnswers(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) error {
+	const query = `
+		delete from easy_quizy_game_session 
+		where game_id = $1 and player_id = $2
+	`
+
+	_, err := r.db(ctx).ExecContext(
+		ctx,
+		query,
+		gameID,
+		playerID,
 	)
 
 	return err

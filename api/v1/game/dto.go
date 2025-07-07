@@ -42,8 +42,12 @@ type AcceptAnswerResponse struct {
 	Explanation *string `json:"explanation,omitempty"`
 }
 
-func toStateResponse(state *model.State) *StateResponse {
-	resp := &StateResponse{
+type GetDailyGameResponse struct {
+	GameID string `json:"gameId"`
+}
+
+func toStateResponse(state model.State) StateResponse {
+	resp := StateResponse{
 		Progress: Progress{
 			Answered: state.Progress.Answered,
 			Total:    state.Progress.Total,

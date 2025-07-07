@@ -32,8 +32,10 @@ type (
 	}
 
 	GameUsecase interface {
-		Get(ctx context.Context, id uuid.UUID) (*model.Game, error)
+		Get(ctx context.Context, id uuid.UUID) (model.Game, error)
+		GetDaily(ctx context.Context) (model.Game, error)
 		AcceptAnswer(ctx context.Context, in *AcceptAnswersIn) (*AcceptAnswersOut, error)
-		GetCurrentState(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) (*model.State, error)
+		GetCurrentState(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) (model.State, error)
+		Reset(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) error
 	}
 )

@@ -4,6 +4,7 @@ import "github.com/google/uuid"
 
 const (
 	GameTypeClassic = "classic"
+	GameTypeDaily   = "daily"
 )
 
 type (

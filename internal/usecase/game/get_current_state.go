@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) (*model.State, error) {
-	var result *model.State
+func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) (model.State, error) {
+	var result model.State
 	return result, u.trm.Do(ctx, func(ctx context.Context) error {
 		// Получаем игру
 		specificGame, err := u.Get(ctx, gameID)
@@ -29,7 +29,7 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 			answeredMap[ans.QuestionID] = ans.AnswerID
 		}
 
-		result = &model.State{
+		result = model.State{
 			GameID: gameID,
 			Progress: model.Progress{
 				Total:    int64(len(specificGame.Questions)),

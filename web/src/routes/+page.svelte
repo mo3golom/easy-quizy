@@ -114,7 +114,7 @@
 		</div>
 
 		<!-- Footer Info / Start Game Button - Fixed on mobile, normal on desktop -->
-		<div class="fixed bottom-0 left-0 right-0 p-4 bg-base-200 border-t border-base-300 sm:static sm:bg-transparent sm:border-t-0 sm:text-center sm:mt-8 sm:p-0">
+		<div class="fixed bottom-0 left-0 right-0 p-4 sm:static sm:text-center sm:mt-8 sm:p-0">
 			<button
 				class="btn btn-primary text-lg font-semibold h-16 w-full sm:w-auto transition-all duration-600 ease-in-out transform hover:scale-105 shadow-lg sm:shadow-none"
 				class:loading={isLoading}

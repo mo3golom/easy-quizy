@@ -53,7 +53,7 @@
 </svelte:head>
 
 <div class="min-h-screen">
-	<div class="container mx-auto px-4 py-12 max-w-2xl pb-24 sm:pb-0">
+	<div class="container mx-auto px-4 py-6 max-w-2xl pb-24 sm:pb-0">
 		<div class="text-center mb-10">
 			<h1
 				class="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 text-main-font"

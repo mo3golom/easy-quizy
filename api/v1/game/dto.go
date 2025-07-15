@@ -2,6 +2,8 @@ package game
 
 import (
 	"easy-quizy/internal/model"
+
+	"github.com/google/uuid"
 )
 
 type AnswerOption struct {
@@ -26,10 +28,16 @@ type Progress struct {
 	Total    int64 `json:"total"`
 }
 
+type GameInfo struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+}
+
 type StateResponse struct {
 	Question *Question `json:"question,omitempty"`
 	Result   *Result   `json:"result,omitempty"`
 	Progress Progress  `json:"progress"`
+	GameInfo GameInfo  `json:"gameInfo"`
 }
 
 type AcceptAnswerRequest struct {
@@ -51,6 +59,10 @@ func toStateResponse(state model.State) StateResponse {
 		Progress: Progress{
 			Answered: state.Progress.Answered,
 			Total:    state.Progress.Total,
+		},
+		GameInfo: GameInfo{
+			ID:    state.GameInfo.ID,
+			Title: state.GameInfo.Title,
 		},
 	}
 

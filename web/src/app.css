@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: gigaextreme --default;
+  root: ":root";
+  include: ;
+  exclude: ;
+  prefix: ;
+  logs: true;
+}
+
+
+@plugin "daisyui/theme" {
+  name: "gigaextreme";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(98% 0.019 200.873);
+  --color-base-200: oklch(95% 0.045 203.388);
+  --color-base-300: oklch(91% 0.08 205.041);
+  --color-base-content: oklch(21% 0.006 56.043);
+  --color-primary: oklch(60% 0.126 221.723);
+  --color-primary-content: oklch(98% 0.019 200.873);
+  --color-secondary: oklch(59% 0.249 0.584);
+  --color-secondary-content: oklch(97% 0.014 343.198);
+  --color-accent: oklch(51% 0.262 276.966);
+  --color-accent-content: oklch(96% 0.018 272.314);
+  --color-neutral: oklch(21% 0.006 56.043);
+  --color-neutral-content: oklch(98% 0.001 106.423);
+  --color-info: oklch(78% 0.154 211.53);
+  --color-info-content: oklch(30% 0.056 229.695);
+  --color-success: oklch(84% 0.238 128.85);
+  --color-success-content: oklch(26% 0.065 152.934);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(27% 0.077 45.635);
+  --color-error: oklch(71% 0.194 13.428);
+  --color-error-content: oklch(27% 0.105 12.094);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 2px;
+  --depth: 1;
+  --noise: 1;
+}
+
+
+@font-face {
+  font-family: 'main-font';
+  src: url('/fonts/pribambas.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@layer components {
+  .text-main-font {
+    font-family: 'main-font', sans-serif;
+  }
+
+  .option-correct {
+    background-color: var(--color-success) !important;
+    color: var(--color-success-content) !important;
+    border-color: var(--color-success) !important;
+  }
+  
+  .option-incorrect {
+    background-color: var(--color-error) !important;
+    color: var(--color-error-content) !important;
+    border-color: var(--color-error) !important;
+  }
+  
+  .option-button:disabled {
+    @apply opacity-100;
+  }
+   
+  .countdown-indicator {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .countdown-circle {
+    width: 40px;
+    height: 40px;
+    transform: rotate(-90deg);
+  }
+
+  .countdown-circle circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: 0;
+    opacity: 0.3;
+  }
+
+  .countdown-circle .progress-circle {
+    opacity: 1;
+    animation: countdown 2s linear forwards;
+  }
+
+  .countdown-text {
+    position: absolute;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}

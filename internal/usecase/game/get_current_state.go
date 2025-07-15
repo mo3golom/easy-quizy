@@ -30,7 +30,9 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 		}
 
 		result = model.State{
-			GameID: gameID,
+			GameInfo: model.GameInfo{
+				ID:    specificGame.ID,
+				Title: specificGame.Title},
 			Progress: model.Progress{
 				Total:    int64(len(specificGame.Questions)),
 				Answered: int64(len(specificSession.Answers)),

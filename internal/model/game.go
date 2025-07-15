@@ -19,6 +19,11 @@ type (
 		ScoreResults []ScoreResult
 	}
 
+	GameInfo struct {
+		ID    uuid.UUID
+		Title string
+	}
+
 	ScoreResult struct {
 		From int64
 		To   int64
@@ -53,10 +58,10 @@ type (
 	}
 
 	State struct {
-		GameID   uuid.UUID
 		Question *Question
 		Result   *Result
 		Progress Progress
+		GameInfo GameInfo
 	}
 
 	Result struct {

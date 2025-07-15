@@ -53,7 +53,7 @@
 </svelte:head>
 
 <div class="min-h-screen">
-	<div class="container mx-auto px-4 sm:py-12 max-w-2xl">
+	<div class="container mx-auto px-4 sm:py-12 max-w-2xl pb-24 sm:pb-0">
 		<div class="text-center mb-10">
 			<h1
 				class="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 text-main-font"
@@ -113,10 +113,10 @@
 			</div>
 		</div>
 
-		<!-- Footer Info / Start Game Button -->
-		<div class="text-center mt-8">
+		<!-- Footer Info / Start Game Button - Fixed on mobile, normal on desktop -->
+		<div class="fixed bottom-0 left-0 right-0 p-4 bg-base-200 border-t border-base-300 sm:static sm:bg-transparent sm:border-t-0 sm:text-center sm:mt-8 sm:p-0">
 			<button
-				class="btn btn-primary text-lg font-semibold h-16 w-full sm:w-auto transition-all duration-600 ease-in-out transform hover:scale-105"
+				class="btn btn-primary text-lg font-semibold h-16 w-full sm:w-auto transition-all duration-600 ease-in-out transform hover:scale-105 shadow-lg sm:shadow-none"
 				class:loading={isLoading}
 				disabled={!gameId.trim() || isLoading}
 				on:click={startGame}

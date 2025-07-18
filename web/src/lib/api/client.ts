@@ -1,10 +1,11 @@
 import { browser } from '$app/environment';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { toast } from '$lib/toast';
 
 // Генерация и сохранение Player ID
 function getOrCreatePlayerId(): string {
 	if (!browser) return '';
-	
+
 	let playerId = localStorage.getItem('player-id');
 	if (!playerId) {
 		playerId = crypto.randomUUID();
@@ -16,21 +17,61 @@ function getOrCreatePlayerId(): string {
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
 	const playerId = getOrCreatePlayerId();
-	
-	const response = await fetch(`${PUBLIC_API_BASE_URL}${endpoint}`, {
-		...options,
-		headers: {
-			'X-Player-ID': playerId,
-			'Content-Type': 'application/json',
-			...options.headers,
-		},
-	});
 
-	if (!response.ok) {
-		throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+	try {
+		const response = await fetch(`${PUBLIC_API_BASE_URL}${endpoint}`, {
+			...options,
+			headers: {
+				'X-Player-ID': playerId,
+				'Content-Type': 'application/json',
+				...options.headers,
+			},
+		});
+
+		if (!response.ok) {
+			// Handle different API status error types
+			let errorMessage: string;
+
+			switch (response.status) {
+				case 400:
+					errorMessage = 'Неверный запрос. Проверьте введенные данные.';
+					break;
+				case 401:
+					errorMessage = 'Ошибка авторизации. Попробуйте обновить страницу.';
+					break;
+				case 403:
+					errorMessage = 'Доступ запрещен.';
+					break;
+				case 404:
+					errorMessage = 'Запрашиваемый ресурс не найден.';
+					break;
+				case 429:
+					errorMessage = 'Слишком много запросов. Попробуйте позже.';
+					break;
+				case 500:
+					errorMessage = 'Ошибка сервера. Попробуйте позже.';
+					break;
+				case 502:
+				case 503:
+				case 504:
+					errorMessage = 'Сервер временно недоступен. Попробуйте позже.';
+					break;
+				default:
+					errorMessage = `Ошибка API: ${response.status} ${response.statusText}`;
+			}
+
+			// Trigger error toast for API status errors
+			toast.error(errorMessage);
+
+			// Maintain existing error throwing behavior for component error handling
+			throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+		}
+
+		return response;
+	} catch (error) {
+		// Re-throw the error to maintain existing error handling behavior
+		throw error;
 	}
-
-	return response;
 }
 
 // Типы для API ответов

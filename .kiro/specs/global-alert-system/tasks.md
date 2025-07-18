@@ -41,45 +41,23 @@
   - Ensure TypeScript type safety for all exported functions
   - _Requirements: 5.1, 5.2, 5.5_
 
-- [ ] 7. Enhance API client with toast error handling
+- [x] 7. Enhance API client with toast error handling
   - Modify `web/src/lib/api/client.ts` apiRequest function to trigger error toasts
   - Replace thrown errors with toast notifications for network and API errors
   - Handle different error types (network errors, API status errors) with appropriate toast messages
   - Maintain existing error throwing behavior for component error handling
   - _Requirements: 6.3_
 
-- [ ] 8. Migrate main page error handling to toast system
+- [x] 8. Migrate main page error handling to toast system
   - Remove inline error display elements from `web/src/routes/+page.svelte` (both daily quiz and game ID errors)
   - Replace error handling with toast notifications using the new toast system
   - Import and use toast utility functions for error scenarios
   - Test that main page errors now appear as toasts instead of inline messages
   - _Requirements: 6.1, 6.2_
 
-- [ ] 9. Migrate ApiQuizQuestion component error handling
+- [x] 9. Migrate ApiQuizQuestion component error handling
   - Remove inline explanation alert from `web/src/lib/components/ApiQuizQuestion.svelte` (currently shows as alert-dash)
   - Replace any error handling with toast notifications using the new toast system
   - Import and use toast utility functions for error scenarios
   - Note: Component currently shows explanations inline, evaluate if this should remain or move to toast
   - _Requirements: 6.1_
-
-- [ ] 10. Migrate ApiQuizResult component error handling
-  - Review `web/src/lib/components/ApiQuizResult.svelte` for any error handling that needs migration
-  - Replace any error handling with toast notifications using the new toast system
-  - Import and use toast utility functions for error scenarios
-  - Note: Component currently has minimal error handling, focus on API integration errors
-  - _Requirements: 6.2_
-
-- [ ] 11. Add accessibility features and keyboard support
-  - Implement ARIA live regions in ToastContainer for screen reader announcements
-  - Add keyboard navigation support (ESC key to dismiss toasts)
-  - Ensure proper ARIA labels and roles on all toast elements
-  - Test with screen readers and keyboard-only navigation
-  - Verify WCAG 2.1 AA contrast requirements are met
-  - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
-
-- [ ] 12. Add success and info toast notifications for positive user actions
-  - Add success toast for successful quiz completion in ApiQuizResult component
-  - Add success toast for successful sharing action (when clipboard copy succeeds)
-  - Add info toasts for helpful user guidance where appropriate
-  - Test that success and info toasts display correctly with proper styling
-  - _Requirements: 2.1, 2.2, 2.3_

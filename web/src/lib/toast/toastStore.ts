@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { Toast, ToastType } from './types';
+import type { Toast } from './types';
 
 interface ToastState {
   toasts: Toast[];

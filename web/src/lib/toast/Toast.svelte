@@ -58,63 +58,59 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      handleClose();
+    // Only handle keydown if this toast element has focus or is the target
+    if (event.target === toastElement || toastElement?.contains(event.target as Node)) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        handleClose();
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        // Allow Enter or Space to close dismissible toasts when focused
+        if (toast.dismissible !== false) {
+          event.preventDefault();
+          handleClose();
+        }
+      }
     }
   }
 
-  // Icon SVGs for each toast type
-  function getIconSvg(iconName: string) {
-    switch (iconName) {
-      case 'check-circle':
-        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>`;
-      case 'x-circle':
-        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>`;
-      case 'exclamation-triangle':
-        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-        </svg>`;
-      case 'information-circle':
-        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>`;
-      default:
-        return '';
+  // Enhanced focus management
+  function handleFocus() {
+    // When toast receives focus, ensure it's visible and announce it
+    if (toastElement) {
+      toastElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
 
+
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div
   bind:this={toastElement}
-  class="toast-item {config.alertClass} alert shadow-lg mb-2 transition-all duration-300 ease-in-out transform relative overflow-hidden"
-  class:translate-x-full={!isVisible}
+  class="{config.alertClass} alert  mb-2 transition-all duration-300 ease-in-out transform relative overflow-hidden"
   class:opacity-0={!isVisible}
-  class:translate-x-0={isVisible}
   class:opacity-100={isVisible}
   role="alert"
-  aria-live="polite"
-  aria-atomic="true"
-  aria-label="{toast.type} notification: {toast.message}"
+  data-toast-id={toast.id}
+  data-toast-type={toast.type}
+  tabindex={toast.dismissible !== false ? 0 : -1}
+  on:focus={handleFocus}
+  on:keydown={handleKeydown}
 >
   <!-- Progress bar for auto-dismiss countdown -->
   {#if duration > 0}
     <div class="absolute bottom-0 left-0 h-1 bg-current opacity-30 transition-all duration-100 ease-linear" bind:this={progressElement}></div>
   {/if}
 
-  <!-- Icon -->
-  <div class="flex-shrink-0" aria-hidden="true">
-    {@html getIconSvg(config.icon)}
-  </div>
-
   <!-- Message -->
   <div class="flex-1 min-w-0">
-    <span class="text-sm font-medium break-words">{toast.message}</span>
+    <span 
+      id="toast-message-{toast.id}"
+      class="text-sm font-medium break-words"
+    >
+      {toast.message}
+    </span>
   </div>
 
   <!-- Close button -->
@@ -132,22 +128,3 @@
     </button>
   {/if}
 </div>
-
-<style>
-  .toast-item {
-    max-width: 400px;
-    min-width: 300px;
-  }
-
-  @media (max-width: 640px) {
-    .toast-item {
-      max-width: calc(100vw - 2rem);
-      min-width: calc(100vw - 2rem);
-    }
-  }
-
-  /* Ensure smooth animations */
-  .toast-item {
-    will-change: transform, opacity;
-  }
-</style>

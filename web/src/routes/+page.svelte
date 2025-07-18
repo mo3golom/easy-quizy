@@ -1,28 +1,26 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { getDailyGame } from "$lib/api/client";
+	import { toast } from "$lib/toast";
 	let gameId = "";
 	let isLoading = false;
-	let error = "";
 
 	// Daily quiz state variables
 	let isDailyLoading = false;
-	let dailyError = "";
 
 	async function startGame() {
 		if (!gameId.trim()) {
-			error = "Пожалуйста, введите ID игры";
+			toast.error("Пожалуйста, введите ID игры");
 			return;
 		}
 
-		error = "";
 		isLoading = true;
 
 		try {
 			// Просто переходим к игре, проверка ID будет на странице игры
 			await goto(`/game/${gameId.trim()}`);
 		} catch (err) {
-			error = "Произошла ошибка при переходе к игре";
+			toast.error("Произошла ошибка при переходе к игре");
 			console.error("Navigation error:", err);
 		} finally {
 			isLoading = false;
@@ -32,12 +30,6 @@
 	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === "Enter") {
 			startGame();
-		}
-	}
-
-	function clearError() {
-		if (error) {
-			error = "";
 		}
 	}
 
@@ -51,23 +43,16 @@
 
 	// Daily quiz functions
 	async function startDailyGame() {
-		dailyError = "";
 		isDailyLoading = true;
 
 		try {
 			const response = await getDailyGame();
 			await goto(`/game/${response.gameId}`);
 		} catch (err) {
-			dailyError = "Произошла ошибка при загрузке ежедневного квиза";
+			toast.error("Произошла ошибка при загрузке ежедневного квиза");
 			console.error("Daily game error:", err);
 		} finally {
 			isDailyLoading = false;
-		}
-	}
-
-	function clearDailyError() {
-		if (dailyError) {
-			dailyError = "";
 		}
 	}
 </script>
@@ -113,15 +98,11 @@
 					class="btn btn-accent btn-lg text-base sm:text-lg font-semibold transition-transform w-35 h-35 mask mask-squircle flex flex-col items-center justify-center"
 					class:loading={isDailyLoading}
 					disabled={isDailyLoading}
-					on:click={() => {
-						clearDailyError();
-						startDailyGame();
-					}}
+					on:click={startDailyGame}
 					on:keydown={(e) => {
 						if (e.key === "Enter" || e.key === " ") {
 							e.preventDefault();
 							if (!isDailyLoading) {
-								clearDailyError();
 								startDailyGame();
 							}
 						}
@@ -129,9 +110,7 @@
 					aria-label={isDailyLoading
 						? "Загружается ежедневный квиз"
 						: "Начать ежедневный квиз"}
-					aria-describedby={dailyError
-						? "daily-error-message"
-						: "daily-quiz-heading"}
+					aria-describedby="daily-quiz-heading"
 				>
 					{#if isDailyLoading}
 						<span
@@ -158,34 +137,7 @@
 					{/if}
 				</button>
 
-				<!-- Daily quiz error message -->
-				{#if dailyError}
-					<div class="mt-3 animate-fade-in" role="alert">
-						<div class="alert alert-error shadow-lg">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="stroke-current shrink-0 h-5 w-5 sm:h-6 sm:w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								aria-hidden="true"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-								></path>
-							</svg>
-							<span
-								id="daily-error-message"
-								class="text-sm font-medium"
-								aria-live="polite"
-							>
-								{dailyError}
-							</span>
-						</div>
-					</div>
-				{/if}
+
 			</div>
 		</div>
 	</section>
@@ -213,17 +165,13 @@
 							type="text"
 							placeholder="c886247f-9dc6-4e3f-b2f0-50f912438079"
 							class="input input-lg input-bordered w-full text-sm sm:text-base"
-							class:input-error={error}
 							bind:value={gameId}
 							on:keypress={handleKeyPress}
-							on:input={clearError}
 							on:focus={handleFocus}
 							on:blur={handleBlur}
 							disabled={isLoading}
-							aria-describedby={error
-								? "game-id-error-message"
-								: "game-id-help"}
-							aria-invalid={error ? "true" : "false"}
+							aria-describedby="game-id-help"
+							aria-invalid="false"
 						/>
 					</div>
 					<div
@@ -247,34 +195,7 @@
 						</svg>
 						<span>Получите ID игры от организатора квиза</span>
 					</div>
-					<!-- Error Message -->
-					{#if error}
-						<div class="mt-3 animate-fade-in" role="alert">
-							<div class="alert alert-error shadow-lg">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="stroke-current shrink-0 h-5 w-5 sm:h-6 sm:w-6"
-									fill="none"
-									viewBox="0 0 24 24"
-									aria-hidden="true"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-									></path>
-								</svg>
-								<span
-									id="game-id-error-message"
-									class="text-sm font-medium"
-									aria-live="polite"
-								>
-									{error}
-								</span>
-							</div>
-						</div>
-					{/if}
+
 				</div>
 			</div>
 			<div class="p-4 sm:p-6">
@@ -294,9 +215,7 @@
 					aria-label={isLoading
 						? "Загружается игра"
 						: "Начать игру с введенным ID"}
-					aria-describedby={error
-						? "game-id-error-message"
-						: "game-id-heading"}
+					aria-describedby="game-id-heading"
 				>
 					{#if isLoading}
 						<span

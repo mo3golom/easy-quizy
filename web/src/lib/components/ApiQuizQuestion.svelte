@@ -98,7 +98,7 @@
 							class="bg-primary text-primary-content outline outline-2 outline-primary rounded-xl p-6 pt-14 shadow-lg relative"
 						>
 							<button
-								class="absolute top-2 right-2 btn btn-sm btn-ghost text-primary-content hover:bg-primary-content/20"
+								class="absolute top-2 right-2 btn btn-sm btn-ghost text-primary-content hover:bg-primary-content/20 rounded-full"
 								on:click={() => (window.location.href = "/")}
 								title="На главную"
 							>

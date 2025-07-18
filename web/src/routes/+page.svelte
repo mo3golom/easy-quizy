@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-
+	import { getDailyGame } from "$lib/api/client";
 	let gameId = "";
 	let isLoading = false;
 	let error = "";
-	let isFocused = false;
+
+	// Daily quiz state variables
+	let isDailyLoading = false;
+	let dailyError = "";
 
 	async function startGame() {
 		if (!gameId.trim()) {
@@ -39,11 +42,33 @@
 	}
 
 	function handleFocus() {
-		isFocused = true;
+		// Focus handling can be added here if needed
 	}
 
 	function handleBlur() {
-		isFocused = false;
+		// Blur handling can be added here if needed
+	}
+
+	// Daily quiz functions
+	async function startDailyGame() {
+		dailyError = "";
+		isDailyLoading = true;
+
+		try {
+			const response = await getDailyGame();
+			await goto(`/game/${response.gameId}`);
+		} catch (err) {
+			dailyError = "Произошла ошибка при загрузке ежедневного квиза";
+			console.error("Daily game error:", err);
+		} finally {
+			isDailyLoading = false;
+		}
+	}
+
+	function clearDailyError() {
+		if (dailyError) {
+			dailyError = "";
+		}
 	}
 </script>
 
@@ -52,114 +77,254 @@
 	<meta name="description" content="Введите ID игры для начала квиза" />
 </svelte:head>
 
-<div class="min-h-screen">
-	<div class="container mx-auto p-4 max-w-2xl">
-		<div class="text-center mb-10">
-			<h1
-				class="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 text-main-font"
+<div class="min-h-screen container mx-auto p-4 max-w-2xl">
+	<div class="text-center mb-10">
+		<h1 class="text-4xl sm:text-5xl font-bold text-primary text-main-font">
+			Easy Quizy!
+		</h1>
+	</div>
+
+	<!-- Daily Quiz Section -->
+	<section
+		class="card bg-base-100 card-border border-primary shadow-xl mb-6"
+		aria-labelledby="daily-quiz-heading"
+	>
+		<div class="flex flex-row">
+			<!-- Left section: Daily quiz description -->
+			<div
+				class="basis-2/3 justify-center bg-primary outline outline-2 outline-primary rounded-xl p-4 sm:p-6 shadow-lg"
 			>
-				Quiz App
-			</h1>
+				<div class="text-primary-content">
+					<h2
+						id="daily-quiz-heading"
+						class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4 text-main-font"
+					>
+						Ежедневный квиз
+					</h2>
+					<p class="text-base sm:text-lg lg:text-xl mb-2 sm:mb-3">
+						Новый квиз каждый день!
+					</p>
+				</div>
+			</div>
+
+			<!-- Right section: Play button -->
+			<div class="flex flex-col items-center p-4 sm:p-6 lg:flex-1">
+				<button
+					class="btn btn-accent btn-lg text-base sm:text-lg font-semibold transition-transform w-35 h-35 mask mask-squircle flex flex-col items-center justify-center"
+					class:loading={isDailyLoading}
+					disabled={isDailyLoading}
+					on:click={() => {
+						clearDailyError();
+						startDailyGame();
+					}}
+					on:keydown={(e) => {
+						if (e.key === "Enter" || e.key === " ") {
+							e.preventDefault();
+							if (!isDailyLoading) {
+								clearDailyError();
+								startDailyGame();
+							}
+						}
+					}}
+					aria-label={isDailyLoading
+						? "Загружается ежедневный квиз"
+						: "Начать ежедневный квиз"}
+					aria-describedby={dailyError
+						? "daily-error-message"
+						: "daily-quiz-heading"}
+				>
+					{#if isDailyLoading}
+						<span
+							class="loading loading-spinner loading-md"
+							aria-hidden="true"
+						></span>
+						Загрузка...
+					{:else}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-12 align-center"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+							/>
+						</svg>
+					{/if}
+				</button>
+
+				<!-- Daily quiz error message -->
+				{#if dailyError}
+					<div class="mt-3 animate-fade-in" role="alert">
+						<div class="alert alert-error shadow-lg">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="stroke-current shrink-0 h-5 w-5 sm:h-6 sm:w-6"
+								fill="none"
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+								></path>
+							</svg>
+							<span
+								id="daily-error-message"
+								class="text-sm font-medium"
+								aria-live="polite"
+							>
+								{dailyError}
+							</span>
+						</div>
+					</div>
+				{/if}
+			</div>
 		</div>
-
-		<!-- Main Form Card -->
-		<div class="card bg-base-100 card-border border-base-300 shadow-xl">
-			<div class="card-body p-6">
+	</section>
+	<div class="divider"></div>
+	<section
+		class="card bg-base-100 card-border border-primary shadow-xl"
+		aria-labelledby="game-id-heading"
+	>
+		<div class="card-body p-0">
+			<div
+				class="bg-primary outline outline-2 outline-primary rounded-xl p-4 sm:p-6 shadow-lg"
+			>
 				<div class="form-control w-full">
-					<label for="game-id">
-						<span class="text-lg sm:text-xl">ID игры</span>
+					<label for="game-id" class="label">
+						<span
+							id="game-id-heading"
+							class="text-base sm:text-lg lg:text-xl text-primary-content text-main-font"
+						>
+							Введите ID игры
+						</span>
 					</label>
-
-					<!-- Enhanced Form Input Group -->
 					<div class="relative mt-1">
 						<input
 							id="game-id"
 							type="text"
-							placeholder="Введите ID игры..."
-							class="input input-lg input-bordered w-full"
+							placeholder="c886247f-9dc6-4e3f-b2f0-50f912438079"
+							class="input input-lg input-bordered w-full text-sm sm:text-base"
 							class:input-error={error}
-							class:border-primary={isFocused && !error}
 							bind:value={gameId}
 							on:keypress={handleKeyPress}
 							on:input={clearError}
 							on:focus={handleFocus}
 							on:blur={handleBlur}
 							disabled={isLoading}
+							aria-describedby={error
+								? "game-id-error-message"
+								: "game-id-help"}
+							aria-invalid={error ? "true" : "false"}
 						/>
 					</div>
-
+					<div
+						id="game-id-help"
+						class="mt-2 text-primary-content/70 flex items-center gap-1 text-xs sm:text-sm"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-3 sm:size-4 flex-shrink-0"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+							></path>
+						</svg>
+						<span>Получите ID игры от организатора квиза</span>
+					</div>
 					<!-- Error Message -->
 					{#if error}
-						<div class="mt-3 animate-fade-in">
+						<div class="mt-3 animate-fade-in" role="alert">
 							<div class="alert alert-error shadow-lg">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="stroke-current shrink-0 h-6 w-6"
+									class="stroke-current shrink-0 h-5 w-5 sm:h-6 sm:w-6"
 									fill="none"
 									viewBox="0 0 24 24"
+									aria-hidden="true"
 								>
 									<path
 										stroke-linecap="round"
 										stroke-linejoin="round"
 										stroke-width="2"
 										d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-									/>
+									></path>
 								</svg>
-								<span class="text-sm font-medium">{error}</span>
+								<span
+									id="game-id-error-message"
+									class="text-sm font-medium"
+									aria-live="polite"
+								>
+									{error}
+								</span>
 							</div>
 						</div>
 					{/if}
 				</div>
 			</div>
-		</div>
-
-		<!-- Footer Info / Start Game Button - Fixed on mobile, normal on desktop -->
-		<div class="fixed bottom-0 left-0 right-0 p-4 sm:static sm:text-center sm:mt-8 sm:p-0">
-			<button
-				class="btn btn-primary text-lg font-semibold h-16 w-full transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg sm:shadow-none"
-				class:loading={isLoading}
-				disabled={!gameId.trim() || isLoading}
-				on:click={startGame}
-			>
-				{#if !gameId.trim()}
-					<div class="p-1.5 bg-base-content/20 rounded-full">
+			<div class="p-4 sm:p-6">
+				<button
+					class="btn btn-accent text-base sm:text-lg font-semibold h-14 sm:h-16 w-full transition-transform hover:scale-105 focus:scale-105"
+					class:loading={isLoading}
+					disabled={!gameId.trim() || isLoading}
+					on:click={startGame}
+					on:keydown={(e) => {
+						if (e.key === "Enter" || e.key === " ") {
+							e.preventDefault();
+							if (gameId.trim() && !isLoading) {
+								startGame();
+							}
+						}
+					}}
+					aria-label={isLoading
+						? "Загружается игра"
+						: "Начать игру с введенным ID"}
+					aria-describedby={error
+						? "game-id-error-message"
+						: "game-id-heading"}
+				>
+					{#if isLoading}
+						<span
+							class="loading loading-spinner loading-md"
+							aria-hidden="true"
+						></span>
+						<span class="sr-only">Загружается</span>
+						Загрузка...
+					{:else}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							class="h-4 w-4 text-base-content"
 							fill="none"
 							viewBox="0 0 24 24"
+							stroke-width="1.5"
 							stroke="currentColor"
+							class="size-5 sm:size-6"
+							aria-hidden="true"
 						>
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
-								stroke-width="2"
-								d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-							/>
+								d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+							></path>
 						</svg>
-					</div>
-					Получите ID игры от организатора квиза
-				{:else if isLoading}
-					<span class="loading loading-spinner loading-md"></span>
-					Загрузка...
-				{:else}
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
-						/>
-					</svg>
-					Начать игру
-				{/if}
-			</button>
+						Начать игру
+					{/if}
+				</button>
+			</div>
 		</div>
-	</div>
+	</section>
 </div>

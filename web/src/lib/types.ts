@@ -51,6 +51,7 @@ export interface ApiQuizState {
 	} | null;
 	progress: {
 		answered: number;
+		correct: number;
 		total: number;
 	};
 	result: {

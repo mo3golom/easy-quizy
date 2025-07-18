@@ -65,7 +65,7 @@ type (
 	}
 
 	Result struct {
-		TotalScore *int64
+		TotalScore int64
 		ResultText string
 	}
 

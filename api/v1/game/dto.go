@@ -19,7 +19,7 @@ type Question struct {
 }
 
 type Result struct {
-	TotalScore *int64 `json:"total_score,omitempty"`
+	TotalScore int64  `json:"total_score"`
 	ResultText string `json:"result_text"`
 }
 

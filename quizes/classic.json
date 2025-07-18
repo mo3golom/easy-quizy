@@ -1,56 +1,79 @@
 {
-    "name": "Classic",
-    "description": "Classic quiz",
-    "type": "classic",
-    "questions": [
+  "name": "Spooky scary quiz",
+  "description": "Ууужасный квиз",
+  "type": "classic",
+  "questions": [
+    {
+      "question": "Какая фобия обозначает сильный страх перед Хэллоуином?",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMGJGVbDeK7dMdHk4_zPRPObvwvMfNikaEAQ&s",
+      "options": [
         {
-            "question": "What is the capital of France?",
-            "image": "https://i.pinimg.com/736x/7b/de/e5/7bdee5a30249a67d9c65187a8417937a.jpg",
-            "options": [
-                    {
-                        "text": "Paris",
-                        "score": 2,
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "London",
-                        "score": 1,
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "Berlin",
-                        "score": 0,
-                        "isCorrect": false
-                    }
-                    
-            ],
-            "explanation": "Paris is the capital of France"
+          "text": "Фасмофобия",
+          "isCorrect": false
         },
         {
-            "question": "What is the capital of Germany?",
-            "options": [
-                    {
-                        "text": "Paris",
-                        "score": 0,
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "London",
-                        "score": 1,
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "Berlin",
-                        "score": 2,
-                        "isCorrect": false
-                    }
-                    
-            ]
+          "text": "Виккафобия",
+          "isCorrect": false
+        },
+        {
+          "text": "Самайнофобия",
+          "isCorrect": true
+        },
+        {
+          "text": "Кукурбитофобия",
+          "isCorrect": false
         }
-    ],
-    "result": {
-        "0-1": "you know nothing",
-        "2-3": "you know a little",
-        "4-5": "you know a lot"
+      ],
+      "explanation": "Фасмофобия"
+    },
+    {
+      "question": "Какая самая популярная песня на Хэллоуин?",
+      "image": "https://m.media-amazon.com/images/M/MV5BMDM1YzIyNTYtOGFiMS00YjJiLThiMTktMjllYzI4NjExOGNjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+      "options": [
+        {
+          "text": "Ghostbusters Theme (Ray Parker Jr.)",
+          "isCorrect": false
+        },
+        {
+          "text": "Thriller (Michael Jackson's)",
+          "isCorrect": true
+        },
+        {
+          "text": "Monster Mash (Bobby \"Boris\" Pickett)",
+          "isCorrect": false
+        },
+        {
+          "text": "Somebody's Watching Me (Rockwell)",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "question": "Кто из сериала \"Офис\" решил по-настоящему проникнуться духом праздника?",
+      "image":"https://static1.moviewebimages.com/wordpress/wp-content/uploads/2022/10/1f4a9f1a-c5ef-4147-9cf7-7871c9c4e8b0-screen-shot-2020-10-28-at-14200-pm.jpeg",
+      "options": [
+        {
+          "text": "Майкл Скотт",
+          "isCorrect": false
+        },
+        {
+          "text": "Дуайт Шрут",
+          "isCorrect": true
+        },
+        {
+          "text": "Джим Халперт",
+          "isCorrect": false
+        },
+        {
+          "text": "Пэм Бисли",
+          "isCorrect": false
+        }
+      ]
     }
+  ],
+  "result": {
+    "0-1": "Тебе нужно больше духа хеллоуина",
+    "2-2": "А ты что-то да знаешь",
+    "3-3": "Ого, да ты поди джек, который построил дом"
+  }
 }

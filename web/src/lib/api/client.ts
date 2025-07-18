@@ -46,6 +46,7 @@ export interface ApiQuestion {
 
 export interface ApiProgress {
 	answered: number;
+	correct: number;
 	total: number;
 }
 
@@ -76,6 +77,10 @@ export interface ApiAnswerResponse {
 	explanation?: string;
 }
 
+export interface DailyGameResponse {
+	gameId: string;
+}
+
 // Проверка типа ответа
 export function hasQuestion(state: ApiGameState): state is ApiGameStateWithQuestion {
 	return 'question' in state;
@@ -104,5 +109,10 @@ export async function submitAnswer(gameId: string, questionId: number, answerId:
 			answerId: answerId,
 		}),
 	});
+	return response.json();
+}
+
+export async function getDailyGame(): Promise<DailyGameResponse> {
+	const response = await apiRequest('/api/game/daily');
 	return response.json();
 }

@@ -1,24 +1,37 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
-	import { apiQuizState } from '$lib/stores/quiz';
-	import { getGameState, submitAnswer, resetGame, hasQuestion, hasResult } from '$lib/api/client';
-	import ApiQuizHeader from '$lib/components/ApiQuizHeader.svelte';
-	import ApiQuizQuestion from '$lib/components/ApiQuizQuestion.svelte';
-	import ApiQuizResult from '$lib/components/ApiQuizResult.svelte';
+	import { onMount } from "svelte";
+	import { page } from "$app/stores";
+	import { goto } from "$app/navigation";
+	import { apiQuizState } from "$lib/stores/quiz";
+	import {
+		getGameState,
+		submitAnswer,
+		resetGame,
+		hasQuestion,
+		hasResult,
+	} from "$lib/api/client";
+	import ApiQuizQuestion from "$lib/components/ApiQuizQuestion.svelte";
+	import ApiQuizResult from "$lib/components/ApiQuizResult.svelte";
 
 	const displayResultDuration = 3000;
-	
+
 	let mounted = false;
 	let autoProgressTimeout: NodeJS.Timeout | null = null;
 	let countdownInterval: NodeJS.Timeout | null = null;
 	let countdown = 0;
 	let gameId: string;
-	let error = '';
+	let error = "";
 	let isInitialLoading = true;
 
-	$: gameId = $page.params.gameId == undefined ? '' : $page.params.gameId.trim();
+	$: gameId =
+		$page.params.gameId == undefined ? "" : $page.params.gameId.trim();
+	$: gameName = $apiQuizState.gameName;
+	$: pageUrl = $page.url.href;
+
+	$: ogTitle = gameName ? `Квиз: ${gameName}` : "Quiz App";
+	$: ogDescription = gameName
+		? `Сыграй в квиз "${gameName}" и проверь свои знания!`
+		: "Интерактивное квиз-приложение";
 
 	onMount(() => {
 		loadGameState();
@@ -38,53 +51,65 @@
 	async function loadGameState() {
 		try {
 			isInitialLoading = true;
-			error = '';
-			
+			error = "";
+
 			const gameState = await getGameState(gameId);
-			
+
 			if (hasQuestion(gameState)) {
-				apiQuizState.update(state => ({
+				apiQuizState.update((state) => ({
 					...state,
 					gameId,
 					gameName: gameState.gameInfo.title,
 					currentQuestion: {
 						id: gameState.question.ID,
 						text: gameState.question.text,
-						...(gameState.question.image_id !== undefined ? { image: gameState.question.image_id } : {}),
-						options: gameState.question.answer_options.map(opt => ({
-							id: opt.id,
-							text: opt.answer
-						}))
+						...(gameState.question.image_id !== undefined
+							? { image: gameState.question.image_id }
+							: {}),
+						options: gameState.question.answer_options.map(
+							(opt) => ({
+								id: opt.id,
+								text: opt.answer,
+							}),
+						),
 					},
-					progress: gameState.progress,
+					progress: {
+						answered: gameState.progress.answered,
+						correct: gameState.progress.correct,
+						total: gameState.progress.total,
+					},
 					result: null,
 					isComplete: false,
 					selectedOption: null,
 					isLoading: false,
 					showResult: false,
-					answerResult: null
+					answerResult: null,
 				}));
 			} else if (hasResult(gameState)) {
-				apiQuizState.update(state => ({
+				apiQuizState.update((state) => ({
 					...state,
 					gameId,
 					gameName: gameState.gameInfo.title,
 					currentQuestion: null,
-					progress: gameState.progress,
+					progress: {
+						answered: gameState.progress.answered,
+						correct: gameState.progress.correct,
+						total: gameState.progress.total,
+					},
 					result: {
 						totalScore: gameState.result.total_score,
-						resultText: gameState.result.result_text
+						resultText: gameState.result.result_text,
 					},
 					isComplete: true,
 					selectedOption: null,
 					isLoading: false,
 					showResult: false,
-					answerResult: null
+					answerResult: null,
 				}));
 			}
 		} catch (err) {
-			console.error('Failed to load game state:', err);
-			error = 'Не удалось загрузить игру. Проверьте ID игры.';
+			console.error("Failed to load game state:", err);
+			error = "Не удалось загрузить игру. Проверьте ID игры.";
 		} finally {
 			isInitialLoading = false;
 		}
@@ -111,11 +136,11 @@
 
 	async function handleOptionSelect(event: CustomEvent<number>) {
 		const optionId = event.detail;
-		
-		apiQuizState.update(state => ({
+
+		apiQuizState.update((state) => ({
 			...state,
 			selectedOption: optionId,
-			isLoading: true
+			isLoading: true,
 		}));
 
 		try {
@@ -123,15 +148,19 @@
 			const currentQuestion = $apiQuizState.currentQuestion;
 			if (!currentQuestion) return;
 
-			const answerResponse = await submitAnswer(gameId, currentQuestion.id, optionId);
-			
+			const answerResponse = await submitAnswer(
+				gameId,
+				currentQuestion.id,
+				optionId,
+			);
+
 			// Обновляем состояние с результатом ответа
 			setTimeout(() => {
-				apiQuizState.update(state => ({
+				apiQuizState.update((state) => ({
 					...state,
 					isLoading: false,
 					showResult: true,
-					answerResult: answerResponse
+					answerResult: answerResponse,
 				}));
 
 				// Запускаем таймер для автоматического перехода
@@ -141,12 +170,12 @@
 				}, displayResultDuration);
 			}, 1000); // Симуляция задержки для UX
 		} catch (err) {
-			console.error('Failed to submit answer:', err);
-			apiQuizState.update(state => ({
+			console.error("Failed to submit answer:", err);
+			apiQuizState.update((state) => ({
 				...state,
-				isLoading: false
+				isLoading: false,
 			}));
-			error = 'Не удалось отправить ответ. Попробуйте еще раз.';
+			error = "Не удалось отправить ответ. Попробуйте еще раз.";
 		}
 	}
 
@@ -160,33 +189,41 @@
 		try {
 			// Загружаем новое состояние игры
 			const gameState = await getGameState(gameId);
-			
+
 			if (hasQuestion(gameState)) {
 				// Есть следующий вопрос
-				apiQuizState.update(state => ({
+				apiQuizState.update((state) => ({
 					...state,
 					gameName: gameState.gameInfo.title,
 					currentQuestion: {
 						id: gameState.question.ID,
 						text: gameState.question.text,
-						...(gameState.question.image_id !== undefined ? { image: gameState.question.image_id } : {}),
-						options: gameState.question.answer_options.map(opt => ({
-							id: opt.id,
-							text: opt.answer
-						}))
+						...(gameState.question.image_id !== undefined
+							? { image: gameState.question.image_id }
+							: {}),
+						options: gameState.question.answer_options.map(
+							(opt) => ({
+								id: opt.id,
+								text: opt.answer,
+							}),
+						),
 					},
-					progress: gameState.progress,
+					progress: {
+						answered: gameState.progress.answered,
+						correct: gameState.progress.correct,
+						total: gameState.progress.total,
+					},
 					selectedOption: null,
 					showResult: false,
-					answerResult: null
+					answerResult: null,
 				}));
 			} else if (hasResult(gameState)) {
 				// Игра завершена
 				handleComplete(gameState);
 			}
 		} catch (err) {
-			console.error('Failed to load next question:', err);
-			error = 'Не удалось загрузить следующий вопрос.';
+			console.error("Failed to load next question:", err);
+			error = "Не удалось загрузить следующий вопрос.";
 		}
 	}
 
@@ -198,18 +235,22 @@
 		}
 
 		if (finalGameState && hasResult(finalGameState)) {
-			apiQuizState.update(state => ({
+			apiQuizState.update((state) => ({
 				...state,
 				currentQuestion: null,
-				progress: finalGameState.progress,
+				progress: {
+					answered: finalGameState.progress.answered,
+					correct: finalGameState.progress.correct,
+					total: finalGameState.progress.total,
+				},
 				result: {
 					totalScore: finalGameState.result.total_score,
-					resultText: finalGameState.result.result_text
+					resultText: finalGameState.result.result_text,
 				},
 				isComplete: true,
 				selectedOption: null,
 				showResult: false,
-				answerResult: null
+				answerResult: null,
 			}));
 		}
 	}
@@ -224,11 +265,11 @@
 		try {
 			// Сбрасываем игру через API
 			await resetGame(gameId);
-			
+
 			// Перезагружаем страницу
 			window.location.reload();
 		} catch (err) {
-			console.error('Failed to restart game:', err);
+			console.error("Failed to restart game:", err);
 			// В случае ошибки просто перезагружаем страницу
 			window.location.reload();
 		}
@@ -238,28 +279,78 @@
 </script>
 
 <svelte:head>
-	<title>Quiz App - Игра {gameId.slice(0, 8)}...</title>
-	<meta name="description" content="Интерактивное квиз-приложение" />
+	<title>{ogTitle}</title>
+	<meta name="description" content={ogDescription} />
+
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={pageUrl} />
+	<meta property="og:title" content={ogTitle} />
+	<meta property="og:description" content={ogDescription} />
+	<!-- <meta property="og:image" content="URL_TO_IMAGE"> -->
+
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:url" content={pageUrl} />
+	<meta property="twitter:title" content={ogTitle} />
+	<meta property="twitter:description" content={ogDescription} />
+	<!-- <meta property="twitter:image" content="URL_TO_IMAGE"> -->
 </svelte:head>
 
 {#if isInitialLoading}
 	<div class="min-h-screen flex items-center justify-center">
 		<div class="text-center">
-			<span class="loading loading-spinner loading-lg text-primary mb-4"></span>
+			<span class="loading loading-spinner loading-lg text-primary mb-4"
+			></span>
 			<p class="text-lg text-base-content/70">Загрузка игры...</p>
 		</div>
 	</div>
 {:else if error}
-	<div class="min-h-screen flex items-center justify-center">
+	<div class="min-h-screen flex items-center justify-center p-6">
 		<div class="text-center max-w-md">
 			<div class="text-6xl mb-4">❌</div>
 			<h1 class="text-2xl font-bold text-error mb-4">Ошибка</h1>
 			<p class="text-base-content/70 mb-6">{error}</p>
-			<button class="btn btn-primary" on:click={() => goto('/')}>
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+
+			<button
+				class="btn btn-block btn-primary mb-4 transition-transform"
+				on:click={() => window.location.reload()}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-6"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+					/>
 				</svg>
-				Вернуться на главную
+				Перезагрузить
+			</button>
+			<button
+				class="btn btn-block btn-outline btn-primary transition-transform"
+				on:click={() => goto("/")}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-6"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+					/>
+				</svg>
+				На главную
 			</button>
 		</div>
 	</div>
@@ -267,36 +358,23 @@
 	<ApiQuizResult state={$apiQuizState} on:restart={handleRestart} />
 {:else if $apiQuizState.currentQuestion}
 	<div class="min-h-screen">
-		<!-- Header -->
-		<div class="px-4 pt-4 pb-2">
-			<div class="container mx-auto max-w-4xl">
-				<ApiQuizHeader 
-					gameName={$apiQuizState.gameName}
-					currentQuestionNumber={currentQuestionNumber}
-					totalQuestions={$apiQuizState.progress.total}
-					answeredQuestions={$apiQuizState.progress.answered}
-				/>
-			</div>
-		</div>
-		
-		<!-- Question content -->
-		<div class="px-4 pb-4">
-			<div class="container mx-auto max-w-4xl">
-				<ApiQuizQuestion
-					state={$apiQuizState}
-					countdown={countdown}
-					on:selectOption={handleOptionSelect}
-					on:next={() => handleNext()}
-					on:complete={() => handleComplete()}
-				/>
-			</div>
-		</div>
+		<ApiQuizQuestion
+			state={$apiQuizState}
+			{countdown}
+			on:selectOption={handleOptionSelect}
+			on:next={() => handleNext()}
+			on:complete={() => handleComplete()}
+		/>
 	</div>
 {:else}
-	<div class="min-h-screen flex items-center justify-center">
+	<div class="min-h-screen flex items-center justify-center p-6">
 		<div class="text-center">
-			<h1 class="text-2xl font-bold text-error mb-4">Неизвестное состояние игры</h1>
-			<p class="text-base-content/70">Попробуйте перезагрузить страницу</p>
+			<h1 class="text-2xl font-bold text-error mb-4">
+				Неизвестное состояние игры
+			</h1>
+			<p class="text-base-content/70">
+				Попробуйте перезагрузить страницу
+			</p>
 		</div>
 	</div>
 {/if}

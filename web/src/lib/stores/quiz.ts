@@ -19,7 +19,7 @@ export const apiQuizState = writable<ApiQuizState>({
 	gameId: '',
 	gameName: '',
 	currentQuestion: null,
-	progress: { answered: 0, total: 0 },
+	progress: { answered: 0, correct: 0, total: 0 },
 	result: null,
 	isComplete: false,
 	selectedOption: null,

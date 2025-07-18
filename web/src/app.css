@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @plugin "daisyui" {
   themes: gigaextreme --default;
   root: ":root";
@@ -62,17 +63,17 @@
     color: var(--color-success-content) !important;
     border-color: var(--color-success) !important;
   }
-  
+
   .option-incorrect {
     background-color: var(--color-error) !important;
     color: var(--color-error-content) !important;
     border-color: var(--color-error) !important;
   }
-  
+
   .option-button:disabled {
     @apply opacity-100;
   }
-   
+
   .countdown-indicator {
     position: relative;
     display: inline-flex;
@@ -105,5 +106,13 @@
     position: absolute;
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .btn {
+    @apply transform duration-300 ease-in-out;
+  }
+
+  .btn:hover {
+    @apply scale-105;
   }
 }

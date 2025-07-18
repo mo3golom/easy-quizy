@@ -66,11 +66,10 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 			found := false
 			for _, opt := range question.AnswerOptions {
 				if opt.ID == ans.AnswerID {
-					score := int64(1)
-					if opt.Score != nil {
-						score = *opt.Score
+					if opt.IsCorrect {
+						totalScore++
 					}
-					totalScore += score
+
 					found = true
 					break
 				}
@@ -92,7 +91,7 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 			return errors.New("no result found for total score")
 		}
 		result.Result = &model.Result{
-			TotalScore: &totalScore,
+			TotalScore: totalScore,
 			ResultText: resultText,
 		}
 

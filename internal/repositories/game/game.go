@@ -59,20 +59,19 @@ func (r *DefaultRepository) GetGamesByIDs(ctx context.Context, ids []uuid.UUID) 
 func (r *DefaultRepository) GetDailyGame(ctx context.Context) (model.Game, error) {
 	const query = `
 		select 
-			id, 
-			type, 
-			payload, 
-			created_at
-		from easy_quizy_game
-		where type = $1
-		  and created_at >= date_trunc('day', now() at time zone 'utc')
-		  and created_at < date_trunc('day', now() at time zone 'utc') + interval '1 day'
-		order by created_at asc
+			g.id, 
+			g.type, 
+			g.payload, 
+			g.created_at
+		from easy_quizy_game g
+		inner join easy_quizy_game_daily gd on g.id = gd.game_id
+		where gd.ended_at is null
+		order by gd.created_at asc
 		limit 1
 	`
 
 	var result sqlxGame
-	if err := r.db(ctx).GetContext(ctx, &result, query, model.GameTypeDaily); err != nil {
+	if err := r.db(ctx).GetContext(ctx, &result, query); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return model.Game{}, contracts.ErrGameNotFound
 		}

@@ -35,8 +35,8 @@
 		}
 	}
 
-	function getOptionClass(index: number, optionId: number): string {
-		let baseClass = `${ANSWER_OPTION_COLORS[index % ANSWER_OPTION_COLORS.length]}`;
+	function getOptionCorrectClass(index: number, optionId: number): string {
+		let baseClass = ``;
 
 		if (state.showResult && state.selectedOption === optionId) {
 			if (state.answerResult?.isCorrect) {
@@ -83,7 +83,7 @@
 		<div class="relative mt-14">
 			<div class="absolute -top-10 left-1/2 -translate-x-1/2 z-10">
 				<div
-					class="radial-progress bg-primary text-primary-content border border-4 border-base-200"
+					class="radial-progress bg-primary text-primary-content border border-4 border-primary"
 					style="--value:{progress};"
 					aria-valuenow={progress}
 					role="progressbar"
@@ -154,7 +154,7 @@
 						>
 							{#each currentQuestion.options as option, index}
 								<button
-									class={`relative btn btn-block justify-start h-auto p-3 normal-case h-full flex flex-col text-lg justify-center duration-300 ease-in-out transform hover:scale-105 transition-all ${getOptionClass(index, option.id)}`}
+									class={`relative btn btn-block btn-outline btn-neutral hover:btn-accent justify-start h-auto p-3 normal-case h-full flex flex-col text-lg justify-center transition-all ${getOptionCorrectClass(index, option.id)}`}
 									on:click={() =>
 										handleOptionSelect(option.id)}
 									disabled={state.isLoading ||
@@ -162,7 +162,7 @@
 								>
 									<span
 										class="text-left break-words hyphens-auto"
-										>{option.text}</span
+										>{index+1}.&nbsp;{option.text}</span
 									>
 									{#if state.isLoading && state.selectedOption === option.id}
 										<div

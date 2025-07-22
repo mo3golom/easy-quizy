@@ -1,1 +1,1 @@
-alter table easy_quizy_game add column if not exists "type" text default 'classic';
+alter table game add column if not exists "type" text default 'classic';

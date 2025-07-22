@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 	import type { ApiQuizState } from "../types";
+	import { toast } from "$lib/toast";
 
 	export let state: ApiQuizState;
 
@@ -23,10 +24,7 @@
 		const gameUrl = window.location.href;
 
 		navigator.clipboard.writeText(`${shareText}\n${gameUrl}`).then(() => {
-			shareButtonText = "Скопировано!";
-			setTimeout(() => {
-				shareButtonText = "Поделиться";
-			}, 2000);
+           toast.success("Скопировано!");
 		});
 	}
 </script>

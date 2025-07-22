@@ -2,10 +2,9 @@
 	import { goto } from "$app/navigation";
 	import { getDailyGame } from "$lib/api/client";
 	import { toast } from "$lib/toast";
+
 	let gameId = "";
 	let isLoading = false;
-
-	// Daily quiz state variables
 	let isDailyLoading = false;
 
 	async function startGame() {
@@ -77,7 +76,7 @@
 		<div class="flex flex-row">
 			<!-- Left section: Daily quiz description -->
 			<div
-				class="basis-2/3 justify-center bg-primary outline outline-2 outline-primary rounded-xl p-4 sm:p-6 shadow-lg"
+				class="basis-2/3 justify-center bg-primary rounded-xl p-4 sm:p-6 shadow-lg"
 			>
 				<div class="text-primary-content">
 					<h2
@@ -141,20 +140,20 @@
 			</div>
 		</div>
 	</section>
-	<div class="divider"></div>
+	<div class="divider text-main-font text-xl">ИЛИ</div>
 	<section
-		class="card bg-base-100 card-border border-primary shadow-xl"
+		class="card bg-base-100 card-border border-secondary shadow-xl"
 		aria-labelledby="game-id-heading"
 	>
 		<div class="card-body p-0">
 			<div
-				class="bg-primary outline outline-2 outline-primary rounded-xl p-4 sm:p-6 shadow-lg"
+				class="bg-secondary rounded-xl p-4 sm:p-6 shadow-lg"
 			>
 				<div class="form-control w-full">
 					<label for="game-id" class="label">
 						<span
 							id="game-id-heading"
-							class="text-base sm:text-lg lg:text-xl text-primary-content text-main-font"
+							class="text-base sm:text-lg lg:text-xl text-main-font text-secondary-content"
 						>
 							Введите ID игры
 						</span>
@@ -164,7 +163,7 @@
 							id="game-id"
 							type="text"
 							placeholder="c886247f-9dc6-4e3f-b2f0-50f912438079"
-							class="input input-lg input-bordered w-full text-sm sm:text-base"
+							class="input input-lg input-bordered w-full text-sm"
 							bind:value={gameId}
 							on:keypress={handleKeyPress}
 							on:focus={handleFocus}
@@ -176,7 +175,7 @@
 					</div>
 					<div
 						id="game-id-help"
-						class="mt-2 text-primary-content/70 flex items-center gap-1 text-xs sm:text-sm"
+						class="mt-2 text-secondary-content/70 flex items-center gap-1 text-xs sm:text-sm"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

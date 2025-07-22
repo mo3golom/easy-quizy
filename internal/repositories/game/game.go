@@ -37,7 +37,7 @@ func (r *DefaultRepository) GetGamesByIDs(ctx context.Context, ids []uuid.UUID) 
 			type, 
 			payload, 
 			created_at
-		from easy_quizy_game
+		from game
 		where id = any($1)
 	`
 
@@ -63,8 +63,8 @@ func (r *DefaultRepository) GetDailyGame(ctx context.Context) (model.Game, error
 			g.type, 
 			g.payload, 
 			g.created_at
-		from easy_quizy_game g
-		inner join easy_quizy_game_daily gd on g.id = gd.game_id
+		from game g
+		inner join game_daily gd on g.id = gd.game_id
 		where gd.ended_at is null
 		order by gd.created_at asc
 		limit 1
@@ -84,7 +84,7 @@ func (r *DefaultRepository) GetDailyGame(ctx context.Context) (model.Game, error
 
 func (r *DefaultRepository) InsertGameSessionAnswer(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID, data model.GameSessionAnswer) error {
 	const query = `
-		insert into easy_quizy_game_session
+		insert into game_session
 		(game_id, player_id, question_id, answer_id, is_correct)
 		values ($1, $2, $3, $4, $5)
 	`
@@ -104,7 +104,7 @@ func (r *DefaultRepository) InsertGameSessionAnswer(ctx context.Context, gameID 
 
 func (r *DefaultRepository) DeleteGameSessionAnswers(ctx context.Context, gameID uuid.UUID, playerID uuid.UUID) error {
 	const query = `
-		delete from easy_quizy_game_session 
+		delete from game_session 
 		where game_id = $1 and player_id = $2
 	`
 
@@ -125,7 +125,7 @@ func (r *DefaultRepository) GetGameSession(ctx context.Context, gameID uuid.UUID
             player_id,
             question_id,
     		answer_id
-		from easy_quizy_game_session
+		from game_session
 		where game_id = $1 and player_id = $2
 	`
 

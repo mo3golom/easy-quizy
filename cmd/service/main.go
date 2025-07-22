@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -66,19 +67,12 @@ func main() {
 	r := gin.Default()
 
 	// Add request logging middleware
-	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf("[%s] %s %s %d %s \"%s\" %s \"%s\" Origin: \"%s\"\n",
-			param.TimeStamp.Format("2006/01/02 - 15:04:05"),
-			param.ClientIP,
-			param.Method,
-			param.StatusCode,
-			param.Latency,
-			param.Path,
-			param.Request.Proto,
-			param.Request.UserAgent(),
-			param.Request.Header.Get("Origin"),
-		)
-	}))
+	r.Use(func(c *gin.Context) {
+		c.Next()
+		if c.Writer.Status() == 403 {
+			log.Printf("[403] %s %s Headers: %+v", c.Request.Method, c.Request.URL.Path, c.Request.Header)
+		}
+	})
 
 	// Configure CORS for development and production
 	corsConfig := cors.Config{

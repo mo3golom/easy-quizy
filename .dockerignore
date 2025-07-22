@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.env
+web/.env
+.vscode
+.DS_Store
+
+# Node.js
+web/node_modules
+web/.svelte-kit
+web/build
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Development tools
+bruno/
+docker-easy-quizy/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db

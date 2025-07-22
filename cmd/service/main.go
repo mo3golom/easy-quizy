@@ -64,14 +64,36 @@ func main() {
 	usecase := gameUC.NewUsecase(repository, trm)
 
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+
+	// Configure CORS for development and production
+	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Player-ID"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-	}))
+	}
+
+	// Set allowed origins based on environment
+	if gin.Mode() == gin.DebugMode {
+		// Development: Allow Vite dev server and SSR server
+		corsConfig.AllowOrigins = []string{
+			"http://localhost:5173", // Vite dev server
+			"http://localhost:3000", // SSR server
+			"http://localhost:4173", // Vite preview
+		}
+	} else {
+		// Production: Allow internal Docker communication and external access
+		corsConfig.AllowOrigins = []string{
+			"http://localhost:3000", // SSR server in Docker
+			"http://127.0.0.1:3000", // Alternative localhost format
+		}
+		// In production Docker, also allow all origins for internal communication
+		// This is safe because the Go backend is not directly exposed externally
+		corsConfig.AllowAllOrigins = true
+	}
+
+	r.Use(cors.New(corsConfig))
 
 	gameHandler := gameAPI.NewHandler(usecase)
 	gameHandler.Register(&r.RouterGroup)

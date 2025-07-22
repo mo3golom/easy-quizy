@@ -23,6 +23,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@sveltejs/adapter-node": "^5.2.13",
     "@tailwindcss/cli": "^4.0.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.0.0"

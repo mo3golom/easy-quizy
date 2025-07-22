@@ -18,8 +18,12 @@ function getOrCreatePlayerId(): string {
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
 	const playerId = getOrCreatePlayerId();
 
+	// In production, use relative URLs (empty base URL)
+	// In development, use the configured base URL
+	const baseUrl = PUBLIC_API_BASE_URL || '';
+
 	try {
-		const response = await fetch(`${PUBLIC_API_BASE_URL}${endpoint}`, {
+		const response = await fetch(`${baseUrl}${endpoint}`, {
 			...options,
 			headers: {
 				'X-Player-ID': playerId,

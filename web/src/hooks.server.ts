@@ -1,6 +1,16 @@
 import type { Handle } from '@sveltejs/kit';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
+// Simple logger utility
+const logger = {
+	info: (message: string, data?: any) => {
+		console.log(`[PROXY] ${new Date().toISOString()} - ${message}`, data ? JSON.stringify(data, null, 2) : '');
+	},
+	error: (message: string, error?: any) => {
+		console.error(`[PROXY ERROR] ${new Date().toISOString()} - ${message}`, error);
+	}
+};
+
 export const handle: Handle = async ({ event, resolve }) => {
 	// In production, proxy API requests to the Go backend
 	if (event.url.pathname.startsWith('/api')) {
@@ -8,6 +18,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 		// In development, this can be overridden with BACKEND_URL env var
 		const backendUrl = PUBLIC_API_BASE_URL || 'http://localhost:8080';
 		const apiUrl = `${backendUrl}${event.url.pathname}${event.url.search}`;
+		
+		// Log incoming request
+		logger.info(`Proxying ${event.request.method} request`, {
+			originalUrl: event.url.pathname + event.url.search,
+			targetUrl: apiUrl,
+			userAgent: event.request.headers.get('user-agent'),
+			contentType: event.request.headers.get('content-type')
+		});
 		
 		try {
 			const requestInit: RequestInit = {
@@ -24,6 +42,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 			}
 
 			const response = await fetch(apiUrl, requestInit);
+
+			// Log successful response
+			logger.info(`Proxy response received`, {
+				status: response.status,
+				statusText: response.statusText,
+				contentType: response.headers.get('content-type'),
+				contentLength: response.headers.get('content-length')
+			});
 
 			// Create response with proper headers for CORS and content type
 			const responseHeaders = new Headers(response.headers);

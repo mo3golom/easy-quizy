@@ -85,9 +85,8 @@ func main() {
 	} else {
 		// Production: Allow internal Docker communication and external access
 		corsConfig.AllowOrigins = []string{
-			"http://localhost:3000",           // SSR server in Docker
-			"http://127.0.0.1:3000",           // Alternative localhost format
-			"https://easy-quizy.pugcloud.fun", // Production domain
+			"http://localhost:3000", // SSR server in Docker
+			"http://127.0.0.1:3000", // Alternative localhost format
 		}
 		// In production Docker, also allow all origins for internal communication
 		// This is safe because the Go backend is not directly exposed externally
@@ -95,21 +94,6 @@ func main() {
 	}
 
 	r.Use(cors.New(corsConfig))
-
-	// Add debug middleware to log all requests
-	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
-			param.ClientIP,
-			param.TimeStamp.Format("02/Jan/2006:15:04:05 -0700"),
-			param.Method,
-			param.Path,
-			param.Request.Proto,
-			param.StatusCode,
-			param.Latency,
-			param.Request.UserAgent(),
-			param.ErrorMessage,
-		)
-	}))
 
 	gameHandler := gameAPI.NewHandler(usecase)
 	gameHandler.Register(&r.RouterGroup)

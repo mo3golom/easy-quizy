@@ -66,11 +66,6 @@ func (h *Handler) getCurrentState(c *gin.Context) {
 }
 
 func (h *Handler) acceptAnswer(c *gin.Context) {
-	// Debug logging
-	fmt.Printf("Accept Answer Request - Method: %s, Path: %s\n", c.Request.Method, c.Request.URL.Path)
-	fmt.Printf("Headers: %+v\n", c.Request.Header)
-	fmt.Printf("Origin: %s\n", c.GetHeader("Origin"))
-
 	gameIDStr := c.Param("game_id")
 	gameID, err := uuid.Parse(gameIDStr)
 	if err != nil {

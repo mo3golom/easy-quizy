@@ -65,6 +65,21 @@ func main() {
 
 	r := gin.Default()
 
+	// Add request logging middleware
+	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		return fmt.Sprintf("[%s] %s %s %d %s \"%s\" %s \"%s\" Origin: \"%s\"\n",
+			param.TimeStamp.Format("2006/01/02 - 15:04:05"),
+			param.ClientIP,
+			param.Method,
+			param.StatusCode,
+			param.Latency,
+			param.Path,
+			param.Request.Proto,
+			param.Request.UserAgent(),
+			param.Request.Header.Get("Origin"),
+		)
+	}))
+
 	// Configure CORS for development and production
 	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
@@ -83,10 +98,30 @@ func main() {
 			"http://localhost:4173", // Vite preview
 		}
 	} else {
-		// Production: Allow internal Docker communication and external access
-		corsConfig.AllowOrigins = []string{
-			"http://localhost:3000", // SSR server in Docker
-			"http://127.0.0.1:3000", // Alternative localhost format
+		// Production: More flexible CORS for proxy scenarios
+		corsConfig.AllowOriginFunc = func(origin string) bool {
+			// Allow localhost on any port for development/testing
+			if origin == "" {
+				return true // Allow requests without origin (like server-to-server)
+			}
+
+			// Allow localhost and 127.0.0.1 on common ports
+			allowedOrigins := []string{
+				"http://localhost:3000",
+				"http://127.0.0.1:3000",
+				"http://localhost:5173",
+				"http://127.0.0.1:5173",
+				"http://localhost:4173",
+				"http://127.0.0.1:4173",
+			}
+
+			for _, allowed := range allowedOrigins {
+				if origin == allowed {
+					return true
+				}
+			}
+
+			return false
 		}
 	}
 

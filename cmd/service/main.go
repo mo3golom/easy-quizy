@@ -88,9 +88,6 @@ func main() {
 			"http://localhost:3000", // SSR server in Docker
 			"http://127.0.0.1:3000", // Alternative localhost format
 		}
-		// In production Docker, also allow all origins for internal communication
-		// This is safe because the Go backend is not directly exposed externally
-		corsConfig.AllowAllOrigins = true
 	}
 
 	r.Use(cors.New(corsConfig))

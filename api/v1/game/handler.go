@@ -3,6 +3,7 @@ package game
 import (
 	"easy-quizy/internal/contracts"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -65,18 +66,26 @@ func (h *Handler) getCurrentState(c *gin.Context) {
 }
 
 func (h *Handler) acceptAnswer(c *gin.Context) {
+	// Debug logging
+	fmt.Printf("Accept Answer Request - Method: %s, Path: %s\n", c.Request.Method, c.Request.URL.Path)
+	fmt.Printf("Headers: %+v\n", c.Request.Header)
+	fmt.Printf("Origin: %s\n", c.GetHeader("Origin"))
+
 	gameIDStr := c.Param("game_id")
 	gameID, err := uuid.Parse(gameIDStr)
 	if err != nil {
+		fmt.Printf("Invalid game ID: %s\n", gameIDStr)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid game_id format"})
 		return
 	}
 
 	playerIDStr := c.GetHeader(playerIDHeader)
 	if playerIDStr == "" {
+		fmt.Printf("Missing X-Player-ID header\n")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "header X-Player-ID is required"})
 		return
 	}
+	fmt.Printf("Player ID: %s\n", playerIDStr)
 	playerID, err := uuid.Parse(playerIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid player_id format"})

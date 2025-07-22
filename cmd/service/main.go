@@ -70,7 +70,12 @@ func main() {
 	r.Use(func(c *gin.Context) {
 		c.Next()
 		if c.Writer.Status() == 403 {
-			log.Printf("[403] %s %s Headers: %+v", c.Request.Method, c.Request.URL.Path, c.Request.Header)
+			log.Printf("[403 DEBUG] PATH: %s | IP: %s | PlayerID: %s | Origin: %s",
+				c.FullPath(),
+				c.ClientIP(),
+				c.Request.Header.Get("X-Player-Id"),
+				c.Request.Header.Get("Origin"),
+			)
 		}
 	})
 
@@ -93,30 +98,7 @@ func main() {
 		}
 	} else {
 		// Production: More flexible CORS for proxy scenarios
-		corsConfig.AllowOriginFunc = func(origin string) bool {
-			// Allow localhost on any port for development/testing
-			if origin == "" {
-				return true // Allow requests without origin (like server-to-server)
-			}
-
-			// Allow localhost and 127.0.0.1 on common ports
-			allowedOrigins := []string{
-				"http://localhost:3000",
-				"http://127.0.0.1:3000",
-				"http://localhost:5173",
-				"http://127.0.0.1:5173",
-				"http://localhost:4173",
-				"http://127.0.0.1:4173",
-			}
-
-			for _, allowed := range allowedOrigins {
-				if origin == allowed {
-					return true
-				}
-			}
-
-			return false
-		}
+		corsConfig.AllowAllOrigins = true
 	}
 
 	r.Use(cors.New(corsConfig))

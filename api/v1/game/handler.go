@@ -28,6 +28,7 @@ func (h *Handler) Register(router *gin.RouterGroup) {
 	gameGroup := router.Group("/api/game")
 	gameGroup.GET("/:game_id", h.getCurrentState)
 	gameGroup.POST("/:game_id/accept-answer", h.acceptAnswer)
+	gameGroup.OPTIONS("/:game_id/accept-answer", h.acceptAnswer)
 	gameGroup.GET("/:game_id/reset", h.resetGame)
 	gameGroup.GET("/daily", h.getDailyGame)
 }

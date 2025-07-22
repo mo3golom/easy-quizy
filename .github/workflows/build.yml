@@ -65,4 +65,4 @@ jobs:
         uses: ./.github/actions/db_migrations
         with:
           db-connection: postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
-          source: file://db/migrations
+          source: file://migrations

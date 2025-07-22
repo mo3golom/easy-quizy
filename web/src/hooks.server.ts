@@ -46,8 +46,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 				headers: {
 					...filteredHeaders,
 					'host': new URL(backendUrl).host,
-					// Ensure X-Player-ID is preserved
-					'X-Player-ID': event.request.headers.get('X-Player-ID') || filteredHeaders['X-Player-ID'] || ''
 				}
 			};
 

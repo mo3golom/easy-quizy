@@ -3,7 +3,7 @@
 	import ToastContainer from '$lib/toast/ToastContainer.svelte';
 </script>
 
-<main class="min-h-screen bg-base-200">
+<main class="min-h-screen bg-primary-content">
 	<slot />
 </main>
 

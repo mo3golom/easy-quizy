@@ -29,26 +29,18 @@
 	}
 </script>
 
-<div class="min-h-screen container mx-auto p-4 max-w-2xl">
-	<div class="text-center mb-10">
-			<h1
-				class="text-4xl sm:text-5xl font-bold text-primary mb-4 text-main-font"
-			>
-				{#if state.gameName}
-			Игра "{state.gameName}" завершена!
-		{:else}
-			Игра завершена!
-		{/if}
-			</h1>
-		</div>
-	<div class="card bg-base-100 card-border border-primary shadow-xl">
+<div class="container mx-auto max-w-md p-2">
+	<div class="relative mt-14">
+	<div class="absolute -top-10 left-1/2 -translate-x-1/2 z-10 bg-primary text-primary-content flex items-center gap-2 p-2 pl-4 pr-4 rounded-full translate-y-5 -rotate-2 text-main-font text-xl">
+		Твой&nbsp;результат&nbsp;в&nbsp;игре 
+	</div>
+	<div class="card bg-base-100 bg-primary rounded-3xl mt-14">
 		<!-- Two main sections structure with improved desktop layout -->
-		<div class="flex flex-col grow md:flex-row">
 			<!-- Left section: Result display -->
-			<div class="flex flex flex-col items-center text-primary-content text-center md:items-center md:justify-center h-full bg-primary outline outline-2 outline-primary rounded-xl p-6 shadow-lg">
+			<div class="flex flex flex-col items-center text-primary-content text-center h-full p-4">
 				{#if state.result}
-					<h2 class="text-2xl md:text-3xl font-bold mb-6 text-main-font">Твой результат</h2>
-					<div class="w-40 h-40 md:w-48 md:h-48 mask mask-squircle bg-gradient-to-b from-neutral/50 to-primary flex flex-col items-center justify-center mb-6">
+					<h2 class="text-5xl font-bold mb-6 mt-4 text-main-font">"{state.gameName}"</h2>
+					<div class="w-40 h-40 md:w-48 md:h-48 mask mask-squircle bg-gradient-to-b from-black/50 to-primary flex flex-col items-center justify-center mb-6">
 						<!-- Score display -->
 						<div class="text-center">
 							<div class="text-4xl md:text-5xl font-bold text-main-font">{state.result.totalScore}</div>
@@ -60,17 +52,17 @@
 					</div>
 					
 					<!-- Result text below the circle - placeholder for next task -->
-					<div class="text-xl md:text-2xl text-main-font">
+					<div class="text-xl md:text-2xl">
 						{state.result.resultText}
 					</div>
 				{/if}
 			</div>
 
 			<!-- Right section: Action buttons -->
-			<div class="flex-1 flex flex-col justify-center gap-4 md:gap-6 p-4 md:p-6">
+			<div class="flex-1 flex flex-col justify-center gap-4 p-4">
 				<!-- Share button -->
 				<button 
-					class="btn btn-lg btn-accent transition-transform" 
+					class="btn btn-lg btn-secondary transition-transform" 
 					on:click={handleShare}
 				>
 					<svg
@@ -92,7 +84,7 @@
 
 				<!-- Restart button -->
 				<button
-					class="btn btn-primary btn-lg transition-transform"
+					class="btn btn-neutral btn-lg transition-transform"
 					class:loading={isRestarting}
 					disabled={isRestarting}
 					on:click={handleRestart}
@@ -118,29 +110,7 @@
 						Еще раз
 					{/if}
 				</button>
-
-				<!-- Home button -->
-				<a 
-					href="/" 
-					class="btn btn-lg btn-secondary transition-transform"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-						/>
-					</svg>
-					На главную
-				</a>
 			</div>
-		</div>
+	</div>
 	</div>
 </div>

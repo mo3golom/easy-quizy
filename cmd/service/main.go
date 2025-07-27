@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -66,19 +65,6 @@ func main() {
 
 	r := gin.Default()
 
-	// Add request logging middleware
-	r.Use(func(c *gin.Context) {
-		c.Next()
-		if c.Writer.Status() == 403 {
-			log.Printf("[403 DEBUG] PATH: %s | IP: %s | PlayerID: %s | Origin: %s",
-				c.FullPath(),
-				c.ClientIP(),
-				c.Request.Header.Get("X-Player-Id"),
-				c.Request.Header.Get("Origin"),
-			)
-		}
-	})
-
 	// Configure CORS for development and production
 	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
@@ -92,9 +78,10 @@ func main() {
 	if gin.Mode() == gin.DebugMode {
 		// Development: Allow Vite dev server and SSR server
 		corsConfig.AllowOrigins = []string{
-			"http://localhost:5173", // Vite dev server
-			"http://localhost:3000", // SSR server
-			"http://localhost:4173", // Vite preview
+			"http://localhost:5173",      // Vite dev server
+			"http://localhost:3000",      // SSR server
+			"http://localhost:4173",      // Vite preview
+			"https://easy-quizy.loca.lt", // localtunnel
 		}
 	} else {
 		// Production: More flexible CORS for proxy scenarios

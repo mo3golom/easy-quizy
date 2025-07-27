@@ -5,6 +5,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
+		allowedHosts: ['easy-quizy.loca.lt'],
 		proxy: {
 			'/api': {
 				target: 'http://localhost:8080',

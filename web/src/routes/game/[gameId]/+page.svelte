@@ -15,7 +15,6 @@
 
 	const displayResultDuration = 3000;
 
-	let mounted = false;
 	let autoProgressTimeout: NodeJS.Timeout | null = null;
 	let countdownInterval: NodeJS.Timeout | null = null;
 	let countdown = 0;
@@ -35,7 +34,6 @@
 
 	onMount(() => {
 		loadGameState();
-		mounted = true;
 
 		// Cleanup timeouts on unmount
 		return () => {
@@ -274,8 +272,6 @@
 			window.location.reload();
 		}
 	}
-
-	$: currentQuestionNumber = $apiQuizState.progress.answered + 1;
 </script>
 
 <svelte:head>

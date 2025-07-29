@@ -17,8 +17,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	gameAPI "easy-quizy/api/v1/game"
+	"easy-quizy/internal/middleware"
 	gameRepo "easy-quizy/internal/repositories/game"
+	userRepo "easy-quizy/internal/repositories/user"
 	gameUC "easy-quizy/internal/usecase/game"
+	userUC "easy-quizy/internal/usecase/user"
 )
 
 func main() {
@@ -60,15 +63,17 @@ func main() {
 	trm := txmanager.Must(trmsqlx.NewDefaultFactory(db))
 	trmsqlxGetter := trmsqlx.DefaultCtxGetter
 
-	repository := gameRepo.NewRepository(db, trmsqlxGetter)
-	usecase := gameUC.NewUsecase(repository, trm)
+	gameRepository := gameRepo.NewRepository(db, trmsqlxGetter)
+	userRepository := userRepo.NewRepository(db, trmsqlxGetter)
+	gameUsecase := gameUC.NewUsecase(gameRepository, trm)
+	userUsecase := userUC.NewUsecase(userRepository)
 
 	r := gin.Default()
 
 	// Configure CORS for development and production
 	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Player-ID"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Player-ID", "X-Source"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -78,10 +83,11 @@ func main() {
 	if gin.Mode() == gin.DebugMode {
 		// Development: Allow Vite dev server and SSR server
 		corsConfig.AllowOrigins = []string{
-			"http://localhost:5173",      // Vite dev server
-			"http://localhost:3000",      // SSR server
-			"http://localhost:4173",      // Vite preview
-			"https://easy-quizy.loca.lt", // localtunnel
+			"http://localhost:5173",           // Vite dev server
+			"http://localhost:3000",           // SSR server
+			"http://localhost:4173",           // Vite preview
+			"https://easy-quizy.loca.lt",      // localtunnel
+			"https://easy-quizy.pugcloud.fun", // production
 		}
 	} else {
 		// Production: More flexible CORS for proxy scenarios
@@ -90,7 +96,10 @@ func main() {
 
 	r.Use(cors.New(corsConfig))
 
-	gameHandler := gameAPI.NewHandler(usecase)
+	// Apply auth middleware to all routes
+	r.Use(middleware.AuthMiddleware(userUsecase))
+
+	gameHandler := gameAPI.NewHandler(gameUsecase)
 	gameHandler.Register(&r.RouterGroup)
 
 	runErr := r.Run(":" + port)

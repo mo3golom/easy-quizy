@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { toastStore } from "./toastStore";
   import Toast from "./Toast.svelte";
   // Subscribe to toast store
-  $: toasts = $toastStore.toasts;
+  let toasts = $derived($toastStore.toasts);
 
   function handleKeydown(event: KeyboardEvent) {
     // ESC key to dismiss all toasts
@@ -25,14 +27,14 @@
     }
   }
 
-  $: {
+  run(() => {
     if (toasts.length > 0) {
       handleFocusManagement();
     }
-  }
+  });
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="toast toast-end">
   {#each toasts as toast (toast.id)}

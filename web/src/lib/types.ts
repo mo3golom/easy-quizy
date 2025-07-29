@@ -1,3 +1,11 @@
+export type Source = 'web' | 'telegram' | string;
+export interface User {
+    id: number;
+    language_code?: string;
+    username?: string;
+	source: Source;
+}
+
 export interface QuizOption {
 	text: string;
 	score?: number;

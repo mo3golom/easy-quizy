@@ -116,8 +116,4 @@
   .btn-answer-option {
     @apply btn btn-block bg-primary-content text-base-content p-3 h-full text-lg justify-center transition-all
   }
-
-  .btn-answer-option:hover {
-    @apply scale-105 bg-secondary text-secondary-content btn-secondary
-  }
 }

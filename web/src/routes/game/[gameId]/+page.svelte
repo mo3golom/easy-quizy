@@ -10,27 +10,29 @@
 		hasQuestion,
 		hasResult,
 	} from "$lib/api/client";
-	import ApiQuizQuestion from "$lib/components/ApiQuizQuestion.svelte";
-	import ApiQuizResult from "$lib/components/ApiQuizResult.svelte";
+	import QuizQuestion from "$lib/components/QuizQuestion.svelte";
+	import QuizResult from "$lib/components/QuizResult.svelte";
+	import BackButton from "$lib/components/BackButton.svelte";
+	import Loading from "$lib/components/Loading.svelte";
+	import { triggerFeedbackFunction } from "$lib/actions/feedback";
 
-	const displayResultDuration = 3000;
+	const displayResultDuration = 2000;
 
 	let autoProgressTimeout: NodeJS.Timeout | null = null;
 	let countdownInterval: NodeJS.Timeout | null = null;
-	let countdown = 0;
-	let gameId: string;
-	let error = "";
-	let isInitialLoading = true;
+	let countdown = $state(0);
+	let gameId: string = $derived($page.params.gameId == undefined ? "" : $page.params.gameId.trim());
+	let error = $state("");
+	let isInitialLoading = $state(true);
 
-	$: gameId =
-		$page.params.gameId == undefined ? "" : $page.params.gameId.trim();
-	$: gameName = $apiQuizState.gameName;
-	$: pageUrl = $page.url.href;
+	
+	let gameName = $derived($apiQuizState.gameName);
+	let pageUrl = $derived($page.url.href);
 
-	$: ogTitle = gameName ? `Квиз: ${gameName}` : "Quiz App";
-	$: ogDescription = gameName
+	let ogTitle = $derived(gameName ? `Квиз: ${gameName}` : "Quiz App");
+	let ogDescription = $derived(gameName
 		? `Сыграй в квиз "${gameName}" и проверь свои знания!`
-		: "Интерактивное квиз-приложение";
+		: "Интерактивное квиз-приложение");
 
 	onMount(() => {
 		loadGameState();
@@ -132,8 +134,7 @@
 		countdown = 0;
 	}
 
-	async function handleOptionSelect(event: CustomEvent<number>) {
-		const optionId = event.detail;
+	async function handleOptionSelect(optionId: number) {
 
 		apiQuizState.update((state) => ({
 			...state,
@@ -152,21 +153,25 @@
 				optionId,
 			);
 
+			if (answerResponse.isCorrect) {
+				triggerFeedbackFunction("success")
+			} else {
+				triggerFeedbackFunction("error")
+			}
+			
 			// Обновляем состояние с результатом ответа
-			setTimeout(() => {
-				apiQuizState.update((state) => ({
-					...state,
-					isLoading: false,
-					showResult: true,
-					answerResult: answerResponse,
-				}));
+			apiQuizState.update((state) => ({
+				...state,
+				isLoading: false,
+				showResult: true,
+				answerResult: answerResponse,
+			}));
 
-				// Запускаем таймер для автоматического перехода
-				startCountdown(displayResultDuration);
-				autoProgressTimeout = setTimeout(() => {
-					handleNext();
-				}, displayResultDuration);
-			}, 1000); // Симуляция задержки для UX
+			// Запускаем таймер для автоматического перехода
+			startCountdown(displayResultDuration);
+			autoProgressTimeout = setTimeout(() => {
+				handleNext();
+			}, displayResultDuration);
 		} catch (err) {
 			console.error("Failed to submit answer:", err);
 			apiQuizState.update((state) => ({
@@ -293,84 +298,80 @@
 	<!-- <meta property="twitter:image" content="URL_TO_IMAGE"> -->
 </svelte:head>
 
-{#if isInitialLoading}
-	<div class="min-h-screen flex items-center justify-center">
-		<div class="text-center">
-			<span class="loading loading-spinner loading-lg text-primary mb-4"
-			></span>
-			<p class="text-lg text-base-content/70">Загрузка игры...</p>
-		</div>
-	</div>
-{:else if error}
-	<div class="min-h-screen flex items-center justify-center p-6">
-		<div class="text-center max-w-md">
-			<div class="text-6xl mb-4">❌</div>
-			<h1 class="text-2xl font-bold text-error mb-4">Ошибка</h1>
-			<p class="text-base-content/70 mb-6">{error}</p>
+<div class="container mx-auto max-w-md p-2">
+	<BackButton targetPage="/" />
 
-			<button
-				class="btn btn-block btn-primary mb-4 transition-transform"
-				on:click={() => window.location.reload()}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="size-6"
+	{#if isInitialLoading}
+		<Loading />
+	{:else if error}
+		<div class="min-h-screen flex items-center justify-center p-6">
+			<div class="text-center max-w-md">
+				<div class="text-6xl mb-4">❌</div>
+				<h1 class="text-2xl font-bold text-error mb-4">Ошибка</h1>
+				<p class="text-base-content/70 mb-6">{error}</p>
+
+				<button
+					class="btn btn-block btn-primary mb-4 transition-transform"
+					onclick={() => window.location.reload()}
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-					/>
-				</svg>
-				Перезагрузить
-			</button>
-			<button
-				class="btn btn-block btn-outline btn-primary transition-transform"
-				on:click={() => goto("/")}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="size-6"
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+						/>
+					</svg>
+					Перезагрузить
+				</button>
+				<button
+					class="btn btn-block btn-outline btn-primary transition-transform"
+					onclick={() => goto("/")}
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-					/>
-				</svg>
-				На главную
-			</button>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+						/>
+					</svg>
+					На главную
+				</button>
+			</div>
 		</div>
-	</div>
-{:else if $apiQuizState.isComplete}
-	<ApiQuizResult state={$apiQuizState} on:restart={handleRestart} />
-{:else if $apiQuizState.currentQuestion}
-	<div class="min-h-screen">
-		<ApiQuizQuestion
-			state={$apiQuizState}
-			{countdown}
-			on:selectOption={handleOptionSelect}
-			on:next={() => handleNext()}
-			on:complete={() => handleComplete()}
-		/>
-	</div>
-{:else}
-	<div class="min-h-screen flex items-center justify-center p-6">
-		<div class="text-center">
-			<h1 class="text-2xl font-bold text-error mb-4">
-				Неизвестное состояние игры
-			</h1>
-			<p class="text-base-content/70">
-				Попробуйте перезагрузить страницу
-			</p>
+	{:else if $apiQuizState.isComplete}
+		<QuizResult state={$apiQuizState} onrestart={handleRestart} />
+	{:else if $apiQuizState.currentQuestion}
+			<QuizQuestion
+				state={$apiQuizState}
+				{countdown}
+				onselectOption={handleOptionSelect}
+				onnext={handleNext}
+				oncomplete={handleComplete}
+			/>
+	{:else}
+		<div class="min-h-screen flex items-center justify-center p-6">
+			<div class="text-center">
+				<h1 class="text-2xl font-bold text-error mb-4">
+					Неизвестное состояние игры
+				</h1>
+				<p class="text-base-content/70">
+					Попробуйте перезагрузить страницу
+				</p>
+			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
+</div>

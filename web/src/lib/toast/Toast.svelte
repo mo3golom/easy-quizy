@@ -3,13 +3,17 @@
   import { toastStore } from './toastStore';
   import { TOAST_CONFIGS, type Toast } from './types';
 
-  export let toast: Toast;
+  interface Props {
+    toast: Toast;
+  }
 
-  let progressElement: HTMLDivElement;
-  let toastElement: HTMLDivElement;
+  let { toast }: Props = $props();
+
+  let progressElement: HTMLDivElement | undefined = $state();
+  let toastElement: HTMLDivElement | undefined = $state();
   let animationFrame: number;
   let startTime: number;
-  let isVisible = false;
+  let isVisible = $state(false);
 
   const config = TOAST_CONFIGS[toast.type];
   const duration = toast.duration || config.defaultDuration;
@@ -84,8 +88,8 @@
 
 
 
-<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   bind:this={toastElement}
   class="{config.alertClass} alert  mb-2 transition-all duration-300 ease-in-out transform relative overflow-hidden"
@@ -95,8 +99,8 @@
   data-toast-id={toast.id}
   data-toast-type={toast.type}
   tabindex={toast.dismissible !== false ? 0 : -1}
-  on:focus={handleFocus}
-  on:keydown={handleKeydown}
+  onfocus={handleFocus}
+  onkeydown={handleKeydown}
 >
   <!-- Progress bar for auto-dismiss countdown -->
   {#if duration > 0}
@@ -118,7 +122,7 @@
     <button
       type="button"
       class="btn btn-ghost btn-sm btn-circle ml-2 flex-shrink-0"
-      on:click={handleClose}
+      onclick={handleClose}
       aria-label="Закрыть уведомление"
       title="Закрыть уведомление"
     >

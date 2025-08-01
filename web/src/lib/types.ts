@@ -1,4 +1,4 @@
-export type Source = 'web' | 'telegram' | string;
+export type Source = 'browser' | 'telegram' | string;
 export interface User {
     id: number;
     language_code?: string;

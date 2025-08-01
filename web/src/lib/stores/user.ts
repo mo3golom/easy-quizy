@@ -6,7 +6,7 @@ import type { User } from '../types';
 const defaultUser: User = {
     id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
     username: "default",
-    source: "web",
+    source: "browser",
 };
 
 export const userData = writable<User>(defaultUser);

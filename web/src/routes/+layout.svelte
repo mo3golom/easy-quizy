@@ -6,12 +6,12 @@
 	import { initData } from "@telegram-apps/sdk";
 	import { setTelegramUser, restoreUser } from "$lib/stores/user";
 	import Loading from "$lib/components/Loading.svelte";
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children?: import("svelte").Snippet;
 	}
 
 	let { children }: Props = $props();
-
 	let isLoading: boolean = $state(true);
 
 	onMount(async () => {
@@ -28,10 +28,10 @@
 					setTelegramUser(telegramUser);
 				}
 			}
-
-			isLoading = false;
 		} catch (error) {
 			console.error("Error initializing Telegram SDK:", error);
+		} finally {
+			isLoading = false;
 		}
 	});
 </script>

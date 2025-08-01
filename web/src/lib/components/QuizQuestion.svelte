@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { ApiQuizState } from "../types";
 	import { triggerFeedback } from "$lib/actions/feedback";
+	import CorrectAnswerEffect from "$lib/components/CorrectAnswerEffect.svelte";
+	import WrongAnswerEffect from "$lib/components/WrongAnswerEffect.svelte";
 
 	const RIGHT_ANSWER = "Правильно!";
 	const WRONG_ANSWER = "Неправильно!";
@@ -75,20 +77,19 @@
 
 <div class="relative mt-8">
 	<div
-		class="absolute -top-10 left-1/2 -translate-x-1/2 z-10 tg-button flex items-center gap-2 p-2 pl-4 pr-4 rounded-full translate-y-5 -rotate-2 text-main-font text-xl"
+		class="absolute -top-10 left-1/2 -translate-x-1/2 z-10 bg-primary text-primary-content flex items-center gap-2 p-2 pl-4 pr-4 rounded-full translate-y-5 -rotate-2 text-main-font text-xl"
 	>
 		<progress
-			class="progress w-56"
-			style="background-color: var(--tg-theme-hint-color, #e0e0e0);"
+			class="progress progress-neutral w-56"
 			value={progress}
 			max="100"
 		></progress>
 		{currentQuestionNumber}&nbsp;из&nbsp;{state.progress.total}
 	</div>
-	<div class="card tg-secondary-bg rounded-3xl">
+	<div class="card bg-primary rounded-3xl">
 		<div class="card-body p-4">
 			{#if currentQuestion}
-				<div class="tg-text relative">
+				<div class="text-primary-content relative">
 					<div class="mb-4 mt-4">
 						{#if currentQuestion?.image}
 							<div class="mb-3 place-self-center">
@@ -133,8 +134,12 @@
 			{/if}
 		</div>
 	</div>
-
 	{#if state.showResult || countdown > 0}
+		{#if state.answerResult?.isCorrect}
+			<CorrectAnswerEffect visible={true} />
+		{:else}
+			<WrongAnswerEffect visible={true} />
+		{/if}
 		<div class="sticky mt-4 bottom-0 z-40">
 			<div
 				class="card bg-primary-content w-full mx-auto rounded-3xl rounded-b-none"

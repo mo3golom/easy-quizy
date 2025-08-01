@@ -1,4 +1,4 @@
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 import { toast } from '$lib/toast';
 import { userData } from "$lib/stores/user";
 import type { User } from "../types"
@@ -11,7 +11,7 @@ function getUser(): User {
 
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
-	const baseUrl = PUBLIC_API_BASE_URL || '';
+	const baseUrl = env.PUBLIC_API_BASE_URL || '';
 	const currentPlayer = getUser();
 
 	try {

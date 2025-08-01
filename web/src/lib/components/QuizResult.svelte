@@ -3,7 +3,7 @@
 	import { toast } from "$lib/toast";
 	import { triggerFeedback } from "$lib/actions/feedback";
 	import { isTMA, shareURL } from "@telegram-apps/sdk";
-	import { PUBLIC_TG_BOT_URL } from '$env/static/public';
+	import { env } from "$env/dynamic/public";
 
 	const SHARE_TEXT = "Поделиться";
 
@@ -26,7 +26,7 @@
 
 		const shareText = `Мой результат ${quizState.result.totalScore} в игре "${quizState.gameName}". Сыграй и ты!`;
 		const gameUrl = window.location.href;
-		const gameUrlForTG = `${PUBLIC_TG_BOT_URL}?startapp`;
+		const gameUrlForTG = `${env.PUBLIC_TG_BOT_URL}?startapp`;
 
 		// Check if we're in Telegram Mini App
 		if (isTMA()) {

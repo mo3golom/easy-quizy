@@ -1,12 +1,12 @@
 import type { Handle } from '@sveltejs/kit';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// In production, proxy API requests to the Go backend
 	if (event.url.pathname.startsWith('/api')) {
 		// In Docker, both services run in the same container, so use localhost
 		// In development, this can be overridden with BACKEND_URL env var
-		const backendUrl = PUBLIC_API_BASE_URL || 'http://localhost:8080';
+		const backendUrl = env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
 		const apiUrl = `${backendUrl}${event.url.pathname}${event.url.search}`;
 
 		try {

@@ -15,6 +15,7 @@ NC='\033[0m' # No Color
 # Global variables for process management
 BACKEND_PID=""
 FRONTEND_PID=""
+TUNNEL_PID=""
 
 # Function to print colored output
 print_info() {
@@ -35,16 +36,22 @@ print_error() {
 
 # Function to show usage
 show_usage() {
-    echo "Usage: $0 [MODE]"
+    echo "Usage: $0 [MODE] [OPTIONS]"
     echo ""
     echo "Modes:"
     echo "  full     Start both Go backend and SvelteKit frontend (default)"
     echo "  client   Start only frontend with external API configuration"
     echo ""
+    echo "Options:"
+    echo "  --tunnel Start localtunnel for external access (requires localtunnel to be installed)"
+    echo ""
     echo "Examples:"
-    echo "  $0           # Start in full mode"
-    echo "  $0 full      # Start in full mode"
-    echo "  $0 client    # Start in client-only mode"
+    echo "  $0                    # Start in full mode"
+    echo "  $0 full               # Start in full mode"
+    echo "  $0 client             # Start in client-only mode"
+    echo "  $0 --tunnel           # Start in full mode with localtunnel"
+    echo "  $0 full --tunnel      # Start in full mode with localtunnel"
+    echo "  $0 client --tunnel    # Start in client-only mode with localtunnel"
 }
 
 # Function to check if a command exists
@@ -65,8 +72,25 @@ is_port_available() {
     fi
 }
 
+# Function to check and install localtunnel
+check_localtunnel() {
+    if ! command_exists lt; then
+        print_warning "localtunnel is not installed. Installing globally..."
+        npm install -g localtunnel
+        if ! command_exists lt; then
+            print_error "Failed to install localtunnel. Please install it manually: npm install -g localtunnel"
+            exit 1
+        fi
+        print_success "localtunnel installed successfully"
+    else
+        print_success "localtunnel is already installed"
+    fi
+}
+
 # Function to check and install dependencies
 check_dependencies() {
+    local use_tunnel=${1:-false}
+    
     print_info "Checking dependencies..."
     
     # Check Go
@@ -90,6 +114,11 @@ check_dependencies() {
     fi
     
     print_success "All required tools are available"
+    
+    # Check localtunnel if needed
+    if [ "$use_tunnel" = "true" ]; then
+        check_localtunnel
+    fi
     
     # Check Go dependencies
     print_info "Checking Go dependencies..."
@@ -139,9 +168,40 @@ check_ports() {
     fi
 }
 
+# Function to start localtunnel
+start_tunnel() {
+    local subdomain="easy-quizy"
+    
+    print_info "Starting localtunnel with subdomain: $subdomain..."
+    
+    # Start localtunnel in background
+    lt --port 5173 --subdomain "$subdomain" &
+    TUNNEL_PID=$!
+    
+    # Wait a moment for tunnel to establish
+    sleep 3
+    if ! kill -0 $TUNNEL_PID 2>/dev/null; then
+        print_error "Failed to start localtunnel"
+        exit 1
+    fi
+    
+    local tunnel_url="https://$subdomain.loca.lt"
+    print_success "Localtunnel started (PID: $TUNNEL_PID)"
+    print_info "Tunnel URL: $tunnel_url"
+    
+    # Store the URL for other functions to use
+    TUNNEL_URL="$tunnel_url"
+}
+
 # Function to cleanup processes on exit
 cleanup() {
     print_info "Shutting down services..."
+    
+    if [ -n "$TUNNEL_PID" ]; then
+        print_info "Stopping localtunnel (PID: $TUNNEL_PID)..."
+        kill $TUNNEL_PID 2>/dev/null || true
+        wait $TUNNEL_PID 2>/dev/null || true
+    fi
     
     if [ -n "$BACKEND_PID" ]; then
         print_info "Stopping Go backend (PID: $BACKEND_PID)..."
@@ -189,7 +249,7 @@ start_frontend() {
     print_info "Starting SvelteKit frontend server on port 5173..."
     
     if [ ! -f "web/.env" ]; then
-              print_error "wev/.env file not found."
+        print_error "web/.env file not found."
     fi
     
     # Start frontend server in background
@@ -210,15 +270,26 @@ start_frontend() {
 
 # Function to start full mode (both backend and frontend)
 start_full_mode() {
+    local use_tunnel=${1:-false}
+    
     print_info "Starting in FULL mode (backend + frontend)..."
     
     start_backend
     start_frontend false
     
+    if [ "$use_tunnel" = "true" ]; then
+        start_tunnel
+    fi
+    
     echo ""
     print_success "Both services are running!"
     print_info "Frontend: http://localhost:5173"
     print_info "Backend API: http://localhost:8080"
+    
+    if [ "$use_tunnel" = "true" ]; then
+        print_info "External access: $TUNNEL_URL"
+    fi
+    
     print_info "Press Ctrl+C to stop all services"
     echo ""
     
@@ -228,15 +299,27 @@ start_full_mode() {
 
 # Function to start client-only mode
 start_client_mode() {
+    local use_tunnel=${1:-false}
+    
     print_info "Starting in CLIENT mode (frontend only)..."
     
     start_frontend true
+    
+    if [ "$use_tunnel" = "true" ]; then
+        start_tunnel
+    fi
     
     echo ""
     print_success "Frontend service is running!"
     print_info "Frontend: http://localhost:5173"
     print_info "API calls will be made to the configured external API"
     print_info "Current API URL: $(grep PUBLIC_API_BASE_URL web/.env | cut -d'=' -f2)"
+    
+    if [ "$use_tunnel" = "true" ]; then
+        print_info "External access: $TUNNEL_URL"
+        print_warning "Perfect for testing Telegram Mini Apps!"
+    fi
+    
     print_info "Press Ctrl+C to stop the service"
     echo ""
     
@@ -250,18 +333,40 @@ main() {
     trap cleanup SIGINT SIGTERM EXIT
     
     # Parse command line arguments
-    MODE=${1:-full}
+    MODE=""
+    USE_TUNNEL=false
+    
+    # Parse all arguments
+    for arg in "$@"; do
+        case $arg in
+            --tunnel)
+                USE_TUNNEL=true
+                ;;
+            full|client)
+                MODE=$arg
+                ;;
+            -h|--help|help)
+                show_usage
+                exit 0
+                ;;
+        esac
+    done
+    
+    # Set default mode if not specified
+    if [ -z "$MODE" ]; then
+        MODE="full"
+    fi
     
     case $MODE in
         full)
-            check_dependencies
+            check_dependencies "$USE_TUNNEL"
             check_ports "full"
-            start_full_mode
+            start_full_mode "$USE_TUNNEL"
             ;;
         client)
-            check_dependencies
+            check_dependencies "$USE_TUNNEL"
             check_ports "client"
-            start_client_mode
+            start_client_mode "$USE_TUNNEL"
             ;;
         -h|--help|help)
             show_usage

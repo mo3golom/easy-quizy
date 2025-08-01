@@ -1,32 +1,25 @@
-import { browser } from '$app/environment';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { toast } from '$lib/toast';
+import { userData } from "$lib/stores/user";
+import type { User } from "../types"
+import { get } from 'svelte/store';
 
-// Генерация и сохранение Player ID
-function getOrCreatePlayerId(): string {
-	if (!browser) return '';
-
-	let playerId = localStorage.getItem('player-id');
-	if (!playerId) {
-		playerId = crypto.randomUUID();
-		localStorage.setItem('player-id', playerId);
-	}
-	return playerId;
+// Функция для получения текущего playerId
+function getUser(): User {
+	return get(userData);
 }
 
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
-	const playerId = getOrCreatePlayerId();
-
-	// In production, use relative URLs (empty base URL)
-	// In development, use the configured base URL
 	const baseUrl = PUBLIC_API_BASE_URL || '';
+	const currentPlayer = getUser();
 
 	try {
 		const response = await fetch(`${baseUrl}${endpoint}`, {
 			...options,
 			headers: {
-				'X-Player-ID': playerId,
+				'X-Player-ID': currentPlayer.id.toString(),
+				'X-Source': currentPlayer.source,
 				'Content-Type': 'application/json',
 				...options.headers,
 			},

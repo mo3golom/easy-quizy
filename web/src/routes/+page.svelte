@@ -2,10 +2,11 @@
 	import { goto } from "$app/navigation";
 	import { getDailyGame } from "$lib/api/client";
 	import { toast } from "$lib/toast";
+	import { triggerFeedback } from "$lib/actions/feedback";
 
-	let gameId = "";
-	let isLoading = false;
-	let isDailyLoading = false;
+	let gameId = $state("");
+	let isLoading = $state(false);
+	let isDailyLoading = $state(false);
 
 	async function startGame() {
 		if (!gameId.trim()) {
@@ -32,14 +33,6 @@
 		}
 	}
 
-	function handleFocus() {
-		// Focus handling can be added here if needed
-	}
-
-	function handleBlur() {
-		// Blur handling can be added here if needed
-	}
-
 	// Daily quiz functions
 	async function startDailyGame() {
 		isDailyLoading = true;
@@ -61,99 +54,99 @@
 	<meta name="description" content="Введите ID игры для начала квиза" />
 </svelte:head>
 
-<div class="min-h-screen container mx-auto p-4 max-w-2xl">
-	<div class="text-center mb-10">
-		<h1 class="text-4xl sm:text-5xl font-bold text-primary text-main-font">
-			Easy Quizy!
-		</h1>
-	</div>
-
-	<!-- Daily Quiz Section -->
-	<section
-		class="card bg-base-100 card-border border-primary shadow-xl mb-6"
-		aria-labelledby="daily-quiz-heading"
-	>
-		<div class="flex flex-row">
-			<!-- Left section: Daily quiz description -->
-			<div
-				class="basis-2/3 justify-center bg-primary rounded-xl p-4 sm:p-6 shadow-lg"
+<div class="w-full min-h-screen bg-primary">
+	<div class="container mx-auto max-w-md p-2">
+		<div class="text-center p-6">
+			<h1
+				class="text-5xl font-bold text-primary-content text-main-font -rotate-5"
 			>
-				<div class="text-primary-content">
-					<h2
-						id="daily-quiz-heading"
-						class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4 text-main-font"
-					>
-						Ежедневный квиз
-					</h2>
-					<p class="text-base sm:text-lg lg:text-xl mb-2 sm:mb-3">
-						Новый квиз каждый день!
-					</p>
-				</div>
-			</div>
-
-			<!-- Right section: Play button -->
-			<div class="flex flex-col items-center p-4 sm:p-6 lg:flex-1">
-				<button
-					class="btn btn-accent btn-lg text-base sm:text-lg font-semibold transition-transform w-35 h-35 mask mask-squircle flex flex-col items-center justify-center"
-					class:loading={isDailyLoading}
-					disabled={isDailyLoading}
-					on:click={startDailyGame}
-					on:keydown={(e) => {
-						if (e.key === "Enter" || e.key === " ") {
-							e.preventDefault();
-							if (!isDailyLoading) {
-								startDailyGame();
-							}
-						}
-					}}
-					aria-label={isDailyLoading
-						? "Загружается ежедневный квиз"
-						: "Начать ежедневный квиз"}
-					aria-describedby="daily-quiz-heading"
-				>
-					{#if isDailyLoading}
-						<span
-							class="loading loading-spinner loading-md"
-							aria-hidden="true"
-						></span>
-						Загрузка...
-					{:else}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="size-12 align-center"
-							aria-hidden="true"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
-							/>
-						</svg>
-					{/if}
-				</button>
-
-
-			</div>
+				<p class="-translate-x-8">ИЗИ</p>
+				<p class="translate-x-8">КВИЗИ!</p>
+			</h1>
 		</div>
-	</section>
-	<div class="divider text-main-font text-xl">ИЛИ</div>
-	<section
-		class="card bg-base-100 card-border border-secondary shadow-xl"
-		aria-labelledby="game-id-heading"
-	>
-		<div class="card-body p-0">
-			<div
-				class="bg-secondary rounded-xl p-4 sm:p-6 shadow-lg"
-			>
+
+		<div class="p-4 bg-primary-content rounded-3xl">
+			<!-- Daily Quiz Section -->
+			<section class="mb-6" aria-labelledby="daily-quiz-heading">
+				<div class="flex flex-row">
+					<!-- Left section: Daily quiz description -->
+					<div class="basis-2/3 justify-center content-center">
+						<div class="text-primary">
+							<h2
+								id="daily-quiz-heading"
+								class="text-3xl md:text-4xl font-bold text-main-font"
+							>
+								<p
+									class="bg-primary text-primary-content w-min p-2 pl-4 pr-4 rounded-full mx-auto -rotate-5 translate-y-2"
+								>
+									Ежедневный
+								</p>
+								<p
+									class="bg-primary text-primary-content w-min p-2 pl-4 pr-4 rounded-full mx-auto"
+								>
+									квиз
+								</p>
+							</h2>
+						</div>
+					</div>
+
+					<!-- Right section: Play button -->
+					<div class="flex flex-col items-center lg:flex-1">
+						<button
+							class="btn btn-secondary btn-lg text-base sm:text-lg font-semibold transition-transform w-30 h-30 md:w-35 md:h-35 mask mask-squircle flex flex-col items-center justify-center"
+							class:loading={isDailyLoading}
+							disabled={isDailyLoading}
+							onclick={startDailyGame}
+							onkeydown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									e.preventDefault();
+									if (!isDailyLoading) {
+										startDailyGame();
+									}
+								}
+							}}
+							use:triggerFeedback={"light"}
+							aria-label={isDailyLoading
+								? "Загружается ежедневный квиз"
+								: "Начать ежедневный квиз"}
+							aria-describedby="daily-quiz-heading"
+						>
+							{#if isDailyLoading}
+								<span
+									class="loading loading-spinner loading-md"
+									aria-hidden="true"
+								></span>
+								Загрузка...
+							{:else}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="size-12 align-center"
+									aria-hidden="true"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+									/>
+								</svg>
+							{/if}
+						</button>
+					</div>
+				</div>
+			</section>
+			<div class="divider text-main-font text-xl text-base-content">
+				ИЛИ
+			</div>
+			<section aria-labelledby="game-id-heading">
 				<div class="form-control w-full">
 					<label for="game-id" class="label">
 						<span
 							id="game-id-heading"
-							class="text-base sm:text-lg lg:text-xl text-main-font text-secondary-content"
+							class="sm:text-lg lg:text-xl text-main-font text-base-content"
 						>
 							Введите ID игры
 						</span>
@@ -165,9 +158,7 @@
 							placeholder="c886247f-9dc6-4e3f-b2f0-50f912438079"
 							class="input input-lg input-bordered w-full text-sm"
 							bind:value={gameId}
-							on:keypress={handleKeyPress}
-							on:focus={handleFocus}
-							on:blur={handleBlur}
+							onkeypress={handleKeyPress}
 							disabled={isLoading}
 							aria-describedby="game-id-help"
 							aria-invalid="false"
@@ -175,7 +166,7 @@
 					</div>
 					<div
 						id="game-id-help"
-						class="mt-2 text-secondary-content/70 flex items-center gap-1 text-xs sm:text-sm"
+						class="mt-1 text-base-content/70 flex items-center gap-1 text-xs sm:text-sm"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -194,16 +185,14 @@
 						</svg>
 						<span>Получите ID игры от организатора квиза</span>
 					</div>
-
 				</div>
-			</div>
-			<div class="p-4 sm:p-6">
+
 				<button
-					class="btn btn-accent text-base sm:text-lg font-semibold h-14 sm:h-16 w-full transition-transform hover:scale-105 focus:scale-105"
+					class="btn btn-secondary text-base sm:text-lg font-semibold h-14 sm:h-16 w-full transition-transform mt-4"
 					class:loading={isLoading}
 					disabled={!gameId.trim() || isLoading}
-					on:click={startGame}
-					on:keydown={(e) => {
+					onclick={startGame}
+					onkeydown={(e) => {
 						if (e.key === "Enter" || e.key === " ") {
 							e.preventDefault();
 							if (gameId.trim() && !isLoading) {
@@ -211,6 +200,7 @@
 							}
 						}
 					}}
+					use:triggerFeedback={"light"}
 					aria-label={isLoading
 						? "Загружается игра"
 						: "Начать игру с введенным ID"}
@@ -242,7 +232,7 @@
 						Начать игру
 					{/if}
 				</button>
-			</div>
+			</section>
 		</div>
-	</section>
+	</div>
 </div>

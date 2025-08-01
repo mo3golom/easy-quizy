@@ -2,16 +2,13 @@ package game
 
 import (
 	"easy-quizy/internal/contracts"
+	"easy-quizy/internal/middleware"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-)
-
-const (
-	playerIDHeader = "X-Player-ID"
 )
 
 type Handler struct {
@@ -41,14 +38,9 @@ func (h *Handler) getCurrentState(c *gin.Context) {
 		return
 	}
 
-	playerIDStr := c.GetHeader(playerIDHeader)
-	if playerIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "header X-Player-ID is required"})
-		return
-	}
-	playerID, err := uuid.Parse(playerIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid player_id format"})
+	playerID, ok := middleware.GetUserID(c)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user ID from context"})
 		return
 	}
 
@@ -75,16 +67,9 @@ func (h *Handler) acceptAnswer(c *gin.Context) {
 		return
 	}
 
-	playerIDStr := c.GetHeader(playerIDHeader)
-	if playerIDStr == "" {
-		fmt.Printf("Missing X-Player-ID header\n")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "header X-Player-ID is required"})
-		return
-	}
-	fmt.Printf("Player ID: %s\n", playerIDStr)
-	playerID, err := uuid.Parse(playerIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid player_id format"})
+	playerID, ok := middleware.GetUserID(c)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user ID from context"})
 		return
 	}
 
@@ -123,14 +108,9 @@ func (h *Handler) resetGame(c *gin.Context) {
 		return
 	}
 
-	playerIDStr := c.GetHeader(playerIDHeader)
-	if playerIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "header X-Player-ID is required"})
-		return
-	}
-	playerID, err := uuid.Parse(playerIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid player_id format"})
+	playerID, ok := middleware.GetUserID(c)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user ID from context"})
 		return
 	}
 

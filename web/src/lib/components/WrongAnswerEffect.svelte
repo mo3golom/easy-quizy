@@ -1,26 +1,23 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onMount } from "svelte";
 
   interface Props {
-    visible: boolean;
     duration?: number;
   }
 
-  let { visible = false, duration = 3000 }: Props = $props();
+  let { duration = 3000 }: Props = $props();
   let internalVisible = $state(false);
   let timeout: any;
 
-  $effect(() => {
-    if (visible) {
-      internalVisible = true;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        internalVisible = false;
-      }, duration);
-    }
-  });
+  onMount(() => {
+    internalVisible = true;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      internalVisible = false;
+    }, duration);
 
-  onDestroy(() => clearTimeout(timeout));
+    return () => clearTimeout(timeout);
+  });
 </script>
 
 {#if internalVisible}

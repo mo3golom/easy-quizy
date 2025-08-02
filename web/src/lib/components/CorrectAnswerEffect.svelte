@@ -1,25 +1,26 @@
 <script lang="ts">
     import confetti from "canvas-confetti";
-    import { onDestroy } from "svelte";
+    import {  onMount } from "svelte";
 
     interface Props {
-        visible: boolean;
         duration?: number;
     }
 
-    let { visible = false, duration = 3000 }: Props = $props();
+    let { duration = 3000 }: Props = $props();
     let canvasEl: HTMLCanvasElement | undefined = $state(undefined);
     let internalVisible = $state(false);
     let timeout: any;
 
-    onDestroy(() => clearTimeout(timeout));
-
-    $effect(() => {
-        if (visible) {
-            internalVisible = true;
+    onMount(() => {
+            internalVisible = true
             triggerEffects();
+
+           return () => {
+            clearTimeout(timeout);
         }
     });
+ 
+
 
     function triggerEffects() {
         const myConfetti = confetti.create(canvasEl, {
@@ -27,7 +28,7 @@
             useWorker: true,
         });
         myConfetti({
-            particleCount: 120,
+            particleCount: 256,
             spread: 180,
             startVelocity: 50,
             angle: -90,
@@ -36,6 +37,7 @@
 
         clearTimeout(timeout);
         timeout = setTimeout(() => {
+            myConfetti.reset();
             internalVisible = false;
         }, duration);
     }

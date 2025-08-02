@@ -11,6 +11,7 @@
 	interface Props {
 		state: ApiQuizState;
 		countdown?: number;
+		countdownDuration?: number;
 		onselectOption?: (optionId: number) => void;
 		onnext?: () => void;
 		oncomplete?: () => void;
@@ -19,6 +20,7 @@
 	let {
 		state,
 		countdown = 0,
+		countdownDuration = 2000,
 		onselectOption,
 		onnext,
 		oncomplete,
@@ -73,6 +75,14 @@
 			? (currentQuestionNumber / state.progress.total) * 100
 			: 0,
 	);
+
+	// Scroll to top when question changes
+	$effect(() => {
+		if (currentQuestion) {
+			console.log("hehe");
+			window.scrollTo({ top: 0, behavior: "smooth" });
+		}
+	});
 </script>
 
 <div class="relative mt-8">
@@ -136,9 +146,9 @@
 	</div>
 	{#if state.showResult || countdown > 0}
 		{#if state.answerResult?.isCorrect}
-			<CorrectAnswerEffect visible={true} />
+			<CorrectAnswerEffect duration={countdownDuration} />
 		{:else}
-			<WrongAnswerEffect visible={true} />
+			<WrongAnswerEffect duration={countdownDuration} />
 		{/if}
 		<div class="sticky mt-4 bottom-0 z-40">
 			<div

@@ -57,13 +57,13 @@
 	}
 </script>
 
-<div class="relative mt-14">
+<div class="relative mt-8">
 	<div
 		class="absolute -top-10 left-1/2 -translate-x-1/2 z-10 bg-primary text-primary-content flex items-center gap-2 p-2 pl-4 pr-4 rounded-full translate-y-5 -rotate-2 text-main-font text-xl"
 	>
 		Твой&nbsp;результат&nbsp;в&nbsp;игре
 	</div>
-	<div class="card bg-base-100 bg-primary rounded-3xl mt-14">
+	<div class="card bg-base-100 bg-primary rounded-3xl mt-8">
 		<!-- Two main sections structure with improved desktop layout -->
 		<!-- Left section: Result display -->
 		<div

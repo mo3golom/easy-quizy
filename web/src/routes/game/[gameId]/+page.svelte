@@ -358,6 +358,7 @@
 			<QuizQuestion
 				state={$apiQuizState}
 				{countdown}
+				countdownDuration={displayResultDuration}
 				onselectOption={handleOptionSelect}
 				onnext={handleNext}
 				oncomplete={handleComplete}

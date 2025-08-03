@@ -21,6 +21,12 @@ type (
 		UserIDext string    `db:"user_id_ext"`
 		Source    string    `db:"source"`
 	}
+
+	sqlxUserChat struct {
+		UserID   uuid.UUID `db:"user_id"`
+		ChatID   int64     `db:"chat_id"`
+		ChatType string    `db:"chat_type"`
+	}
 )
 
 func NewRepository(sqlx *sqlx.DB, tx *trmsqlx.CtxGetter) *DefaultRepository {
@@ -68,5 +74,49 @@ func (r *DefaultRepository) GetUserBySource(ctx context.Context, userIDext strin
 
 	return model.User{
 		ID: result[0].UserIDint,
+	}, nil
+}
+
+func (r *DefaultRepository) InsertUserChat(ctx context.Context, user model.UserChat) error {
+	const query = `
+	   insert into user_chat
+	   (user_id, chat_id, chat_type)
+	   values ($1, $2, $3)
+	   on conflict (user_id, chat_id) do nothing
+	`
+
+	_, err := r.db(ctx).ExecContext(
+		ctx,
+		query,
+		user.ID,
+		user.ChatID,
+		user.ChatType,
+	)
+
+	return err
+}
+
+func (r *DefaultRepository) GetUserChat(ctx context.Context, userID uuid.UUID, chatID int64) (model.UserChat, error) {
+	const query = `
+	   select user_id, chat_id, chat_type
+	   from user_chat
+	   where user_id = $1 and chat_id = $2
+	`
+
+	var result []sqlxUserChat
+	err := r.db(ctx).SelectContext(ctx, &result, query, userID, chatID)
+	if err != nil {
+		return model.UserChat{}, err
+	}
+	if len(result) == 0 {
+		return model.UserChat{}, contracts.ErrUserChatNotFound
+	}
+
+	return model.UserChat{
+		User: model.User{
+			ID: result[0].UserID,
+		},
+		ChatID:   result[0].ChatID,
+		ChatType: result[0].ChatType,
 	}, nil
 }

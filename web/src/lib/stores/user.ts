@@ -23,13 +23,22 @@ export function restoreUser() {
     }
 }
 
-export function setTelegramUser(user: any) {
-   const telegramUser: User ={
-    id: user.id,
-    username: user.username,
-    language_code: user.language_code,
-    source: "telegram",
-}
+export function setTelegramUser(user: any, chatId?: number, chatType?: string) {
+    const telegramUser: User = {
+        id: user.id,
+        username: user.username,
+        language_code: user.language_code,
+        source: "telegram",
+
+    }
+
+    if (chatId) {
+        telegramUser.chatId = chatId;
+    }
+    if (chatType) {
+        telegramUser.chatType = chatType;
+    }
+    
     userData.set(telegramUser);
 
     if (browser) {

@@ -4,6 +4,8 @@ export interface User {
     language_code?: string;
     username?: string;
 	source: Source;
+	chatId?: number | null;
+	chatType?: string | null;
 }
 
 export interface QuizOption {

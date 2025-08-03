@@ -12,4 +12,10 @@ type (
 		IDext  string
 		Source string
 	}
+
+	UserChat struct {
+		User
+		ChatID   int64
+		ChatType string
+	}
 )

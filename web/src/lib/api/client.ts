@@ -1,18 +1,12 @@
 import { env } from '$env/dynamic/public';
 import { toast } from '$lib/toast';
 import { userData } from "$lib/stores/user";
-import type { User } from "../types"
 import { get } from 'svelte/store';
-
-// Функция для получения текущего playerId
-function getUser(): User {
-	return get(userData);
-}
 
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
 	const baseUrl = env.PUBLIC_API_BASE_URL || '';
-	const currentPlayer = getUser();
+	const currentPlayer =get(userData);
 
 	try {
 		const response = await fetch(`${baseUrl}${endpoint}`, {
@@ -20,9 +14,11 @@ async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<
 			headers: {
 				'X-Player-ID': currentPlayer.id.toString(),
 				'X-Source': currentPlayer.source,
+				'X-Chat-ID': currentPlayer.chatId?.toString() || "",
+				'X-Chat-Type': currentPlayer.chatType || "",
 				'Content-Type': 'application/json',
 				...options.headers,
-			},
+			}
 		});
 
 		if (!response.ok) {

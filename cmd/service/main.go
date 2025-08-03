@@ -66,14 +66,23 @@ func main() {
 	gameRepository := gameRepo.NewRepository(db, trmsqlxGetter)
 	userRepository := userRepo.NewRepository(db, trmsqlxGetter)
 	gameUsecase := gameUC.NewUsecase(gameRepository, trm)
-	userUsecase := userUC.NewUsecase(userRepository)
+	userUsecase := userUC.NewUsecase(userRepository, trm)
 
 	r := gin.Default()
 
 	// Configure CORS for development and production
 	corsConfig := cors.Config{
-		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Player-ID", "X-Source"},
+		AllowMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+			"X-Player-ID",
+			"X-Source",
+			"X-Chat-ID",
+			"X-Chat-Type",
+		},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,

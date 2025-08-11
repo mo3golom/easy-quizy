@@ -2,18 +2,29 @@
     import { onMount } from "svelte";
 
     interface Props {
-        startSeconds?: number;
+        durationSeconds?: number;
         onComplete?: () => void;
+        view?: "default" | "compact";
     }
 
-    let { startSeconds = 60, onComplete }: Props = $props();
-    let remainingSeconds = $state(startSeconds);
+    let {
+        durationSeconds = 60,
+        onComplete,
+        view = "default",
+    }: Props = $props();
+    let remainingSeconds = $state(durationSeconds);
     let interval: NodeJS.Timeout | null = null;
 
-    let minutes = $derived(Math.floor(remainingSeconds / 60));
-    let seconds = $derived(remainingSeconds % 60);
+    // Проверка на максимум 99 секунд для compact режима
+    $effect(() => {
+        if (view === "compact" && durationSeconds > 99) {
+            console.warn("Compact timer supports maximum 99 seconds");
+            remainingSeconds = 99;
+        }
+    });
+
     let formattedTime = $derived(
-        `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+        `${remainingSeconds.toString().padStart(2, "0")}`,
     );
 
     function startTimer() {
@@ -43,24 +54,35 @@
     });
 </script>
 
-<div
-    class="flex items-center gap-2 badge badge-soft badge-primary text-primary py-4 px-3 rounded-lg"
->
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-6"
-    >
-        <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-        />
-    </svg>
-    <span class="text-xl font-bold font-mono">
+{#if view === "compact"}
+    <!-- Compact Timer - только секунды, без фона и иконки -->
+    <span class="text-lg font-mono font-bold text-primary">
         {formattedTime}
     </span>
-</div>
+{:else}
+    <!-- Default Timer - полный вид с иконкой и фоном -->
+    <div
+        class="flex items-center gap-3 badge badge-soft badge-primary text-primary py-4 px-4 rounded-lg"
+    >
+        <!-- Clock Icon -->
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+        </svg>
+
+        <!-- DaisyUI Countdown Display -->
+        <span class="text-xl font-mono font-bold">
+            {formattedTime}
+        </span>
+    </div>
+{/if}

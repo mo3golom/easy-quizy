@@ -63,19 +63,15 @@ func (u *Usecase) GetCurrentState(ctx context.Context, gameID uuid.UUID, playerI
 				return errors.New("invalid question id in session answers")
 			}
 			question := specificGame.Questions[ans.QuestionID]
-			found := false
+
 			for _, opt := range question.AnswerOptions {
 				if opt.ID == ans.AnswerID {
 					if opt.IsCorrect {
 						totalScore++
 					}
 
-					found = true
 					break
 				}
-			}
-			if !found {
-				return errors.New("answer option not found for question")
 			}
 		}
 

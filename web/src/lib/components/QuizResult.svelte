@@ -1,24 +1,36 @@
 <script lang="ts">
-	import type { ApiQuizState } from "../types";
+	import type { QuizState } from "../types";
 	import { toast } from "$lib/toast";
 	import { triggerFeedback } from "$lib/actions/feedback";
 	import { isTMA, shareURL } from "@telegram-apps/sdk";
 	import { env } from "$env/dynamic/public";
+	import {
+		resetGame,
+	} from "$lib/api/client";
 
 	const SHARE_TEXT = "Поделиться";
 
 	interface Props {
-		state: ApiQuizState;
-		onrestart?: () => void;
+		state: QuizState;
 	}
 
-	let { state: quizState, onrestart }: Props = $props();
+	let { state: quizState}: Props = $props();
 
 	let isRestarting = $state(false);
 
 	async function handleRestart() {
 		isRestarting = true;
-		onrestart?.();
+		try {
+			// Сбрасываем игру через API
+			await resetGame(quizState.gameId);
+
+			// Перезагружаем страницу
+			window.location.reload();
+		} catch (err) {
+			console.error("Failed to restart game:", err);
+			// В случае ошибки просто перезагружаем страницу
+			window.location.reload();
+		}
 	}
 
 	function handleShare() {
@@ -57,13 +69,13 @@
 	}
 </script>
 
-<div class="relative mt-8">
+<div class="p-2 relative pt-8">
 	<div
-		class="absolute -top-10 left-1/2 -translate-x-1/2 z-10 bg-primary text-primary-content flex items-center gap-2 p-2 pl-4 pr-4 rounded-full translate-y-5 -rotate-2 text-main-font text-xl"
+		class="absolute -top-2 left-1/2 -translate-x-1/2 z-10 bg-primary text-primary-content flex items-center gap-2 p-2 pl-4 pr-4 rounded-full translate-y-5 -rotate-2 text-main-font text-xl"
 	>
 		Твой&nbsp;результат&nbsp;в&nbsp;игре
 	</div>
-	<div class="card bg-base-100 bg-primary rounded-3xl mt-8">
+	<div class="card bg-base-100 bg-primary rounded-3xl">
 		<!-- Two main sections structure with improved desktop layout -->
 		<!-- Left section: Result display -->
 		<div

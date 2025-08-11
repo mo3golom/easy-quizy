@@ -1,43 +1,30 @@
 export type Source = 'browser' | 'telegram' | string;
 export interface User {
-    id: number;
-    language_code?: string;
-    username?: string;
+	id: number;
+	language_code?: string;
+	username?: string;
 	source: Source;
 	chatId?: number | null;
 	chatType?: string | null;
 }
 
 export interface QuizOption {
+	id: number;
 	text: string;
-	score?: number;
-	isCorrect: boolean;
 }
 
 export interface QuizQuestion {
-	question: string;
+	id: number;
+	text: string;
 	image?: string;
 	options: QuizOption[];
-	explanation?: string;
 }
 
-export interface QuizData {
-	id: string;
-	name: string;
-	description: string;
-	questions: QuizQuestion[];
-	result: Record<string, string>;
-}
-
-export interface QuizState {
-	currentQuestionIndex: number;
-	answers: number[];
-	totalScore: number;
-	isComplete: boolean;
-	selectedOption: number | null;
-	isLoading: boolean;
-	showResult: boolean;
-}
+export interface QuizProgress {
+	answered: number;
+	correct: number;
+	total: number;
+};
 
 export interface SavedResult {
 	quizName: string;
@@ -47,33 +34,14 @@ export interface SavedResult {
 }
 
 // Новые типы для API
-export interface ApiQuizState {
+export interface QuizState {
 	gameId: string;
 	gameName: string;
-	currentQuestion: {
-		id: number;
-		text: string;
-		image?: string;
-		options: {
-			id: number;
-			text: string;
-		}[];
-	} | null;
-	progress: {
-		answered: number;
-		correct: number;
-		total: number;
-	};
+	currentQuestion: QuizQuestion | null;
+	progress: QuizProgress;
 	result: {
 		totalScore: number;
 		resultText: string;
 	} | null;
 	isComplete: boolean;
-	selectedOption: number | null;
-	isLoading: boolean;
-	showResult: boolean;
-	answerResult: {
-		isCorrect: boolean;
-		explanation?: string;
-	} | null;
 }

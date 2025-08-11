@@ -2,11 +2,9 @@
 	import { onMount } from "svelte";
 	import { page } from "$app/stores";
 	import { goto } from "$app/navigation";
-	import { apiQuizState } from "$lib/stores/quiz";
+	import { quizState } from "$lib/stores/quiz";
 	import {
 		getGameState,
-		submitAnswer,
-		resetGame,
 		hasQuestion,
 		hasResult,
 	} from "$lib/api/client";
@@ -14,38 +12,25 @@
 	import QuizResult from "$lib/components/QuizResult.svelte";
 	import BackButton from "$lib/components/BackButton.svelte";
 	import Loading from "$lib/components/Loading.svelte";
-	import { triggerFeedbackFunction } from "$lib/actions/feedback";
 
-	const displayResultDuration = 2000;
-
-	let autoProgressTimeout: NodeJS.Timeout | null = null;
-	let countdownInterval: NodeJS.Timeout | null = null;
-	let countdown = $state(0);
-	let gameId: string = $derived($page.params.gameId == undefined ? "" : $page.params.gameId.trim());
+	let gameId: string = $derived(
+		$page.params.gameId == undefined ? "" : $page.params.gameId.trim(),
+	);
 	let error = $state("");
 	let isInitialLoading = $state(true);
 
-	
-	let gameName = $derived($apiQuizState.gameName);
+	let gameName = $derived($quizState.gameName);
 	let pageUrl = $derived($page.url.href);
 
 	let ogTitle = $derived(gameName ? `Квиз: ${gameName}` : "Quiz App");
-	let ogDescription = $derived(gameName
-		? `Сыграй в квиз "${gameName}" и проверь свои знания!`
-		: "Интерактивное квиз-приложение");
+	let ogDescription = $derived(
+		gameName
+			? `Сыграй в квиз "${gameName}" и проверь свои знания!`
+			: "Интерактивное квиз-приложение",
+	);
 
 	onMount(() => {
 		loadGameState();
-
-		// Cleanup timeouts on unmount
-		return () => {
-			if (autoProgressTimeout) {
-				clearTimeout(autoProgressTimeout);
-			}
-			if (countdownInterval) {
-				clearInterval(countdownInterval);
-			}
-		};
 	});
 
 	async function loadGameState() {
@@ -56,7 +41,7 @@
 			const gameState = await getGameState(gameId);
 
 			if (hasQuestion(gameState)) {
-				apiQuizState.update((state) => ({
+				quizState.update((state) => ({
 					...state,
 					gameId,
 					gameName: gameState.gameInfo.title,
@@ -86,7 +71,7 @@
 					answerResult: null,
 				}));
 			} else if (hasResult(gameState)) {
-				apiQuizState.update((state) => ({
+				quizState.update((state) => ({
 					...state,
 					gameId,
 					gameName: gameState.gameInfo.title,
@@ -115,87 +100,14 @@
 		}
 	}
 
-	function startCountdown(milliseconds: number) {
-		countdown = Math.floor(milliseconds / 1000);
-		countdownInterval = setInterval(() => {
-			countdown--;
-			if (countdown <= 0 && countdownInterval) {
-				clearInterval(countdownInterval);
-				countdownInterval = null;
-			}
-		}, 1000);
-	}
-
-	function clearCountdown() {
-		if (countdownInterval) {
-			clearInterval(countdownInterval);
-			countdownInterval = null;
-		}
-		countdown = 0;
-	}
-
-	async function handleOptionSelect(optionId: number) {
-
-		apiQuizState.update((state) => ({
-			...state,
-			selectedOption: optionId,
-			isLoading: true,
-		}));
-
-		try {
-			// Отправляем ответ на сервер
-			const currentQuestion = $apiQuizState.currentQuestion;
-			if (!currentQuestion) return;
-
-			const answerResponse = await submitAnswer(
-				gameId,
-				currentQuestion.id,
-				optionId,
-			);
-
-			if (answerResponse.isCorrect) {
-				triggerFeedbackFunction("success")
-			} else {
-				triggerFeedbackFunction("error")
-			}
-			
-			// Обновляем состояние с результатом ответа
-			apiQuizState.update((state) => ({
-				...state,
-				isLoading: false,
-				showResult: true,
-				answerResult: answerResponse,
-			}));
-
-			// Запускаем таймер для автоматического перехода
-			startCountdown(displayResultDuration);
-			autoProgressTimeout = setTimeout(() => {
-				handleNext();
-			}, displayResultDuration);
-		} catch (err) {
-			console.error("Failed to submit answer:", err);
-			apiQuizState.update((state) => ({
-				...state,
-				isLoading: false,
-			}));
-			error = "Не удалось отправить ответ. Попробуйте еще раз.";
-		}
-	}
-
 	async function handleNext() {
-		clearCountdown();
-		if (autoProgressTimeout) {
-			clearTimeout(autoProgressTimeout);
-			autoProgressTimeout = null;
-		}
-
 		try {
 			// Загружаем новое состояние игры
 			const gameState = await getGameState(gameId);
 
 			if (hasQuestion(gameState)) {
 				// Есть следующий вопрос
-				apiQuizState.update((state) => ({
+				quizState.update((state) => ({
 					...state,
 					gameName: gameState.gameInfo.title,
 					currentQuestion: {
@@ -231,14 +143,8 @@
 	}
 
 	function handleComplete(finalGameState?: any) {
-		clearCountdown();
-		if (autoProgressTimeout) {
-			clearTimeout(autoProgressTimeout);
-			autoProgressTimeout = null;
-		}
-
 		if (finalGameState && hasResult(finalGameState)) {
-			apiQuizState.update((state) => ({
+			quizState.update((state) => ({
 				...state,
 				currentQuestion: null,
 				progress: {
@@ -255,26 +161,6 @@
 				showResult: false,
 				answerResult: null,
 			}));
-		}
-	}
-
-	async function handleRestart() {
-		clearCountdown();
-		if (autoProgressTimeout) {
-			clearTimeout(autoProgressTimeout);
-			autoProgressTimeout = null;
-		}
-
-		try {
-			// Сбрасываем игру через API
-			await resetGame(gameId);
-
-			// Перезагружаем страницу
-			window.location.reload();
-		} catch (err) {
-			console.error("Failed to restart game:", err);
-			// В случае ошибки просто перезагружаем страницу
-			window.location.reload();
 		}
 	}
 </script>
@@ -298,7 +184,7 @@
 	<!-- <meta property="twitter:image" content="URL_TO_IMAGE"> -->
 </svelte:head>
 
-<div class="container mx-auto max-w-md p-2">
+<div class="container mx-auto max-w-md">
 	<BackButton targetPage="/" />
 
 	{#if isInitialLoading}
@@ -352,17 +238,15 @@
 				</button>
 			</div>
 		</div>
-	{:else if $apiQuizState.isComplete}
-		<QuizResult state={$apiQuizState} onrestart={handleRestart} />
-	{:else if $apiQuizState.currentQuestion}
-			<QuizQuestion
-				state={$apiQuizState}
-				{countdown}
-				countdownDuration={displayResultDuration}
-				onselectOption={handleOptionSelect}
-				onnext={handleNext}
-				oncomplete={handleComplete}
-			/>
+	{:else if $quizState.isComplete}
+		<QuizResult state={$quizState} />
+	{:else if $quizState.currentQuestion}
+		<QuizQuestion
+			gameId={$quizState.gameId}
+			question={$quizState.currentQuestion}
+			progress={$quizState.progress}
+			onnext={handleNext}
+		/>
 	{:else}
 		<div class="min-h-screen flex items-center justify-center p-6">
 			<div class="text-center">

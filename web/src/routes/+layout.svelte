@@ -8,7 +8,6 @@
 	import Loading from "$lib/components/Loading.svelte";
 	import TelegramOnlyScreen from "$lib/components/TelegramOnlyScreen.svelte";
 	import { goto } from "$app/navigation";
-	import { mockEnvironment} from "$lib/utils/telegram"
 
 	interface Props {
 		children?: import("svelte").Snippet;

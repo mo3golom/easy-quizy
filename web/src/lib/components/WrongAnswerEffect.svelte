@@ -60,6 +60,7 @@
     width: 8px;
     background-color: rgba(80, 0, 160, 0.8);
     animation: drop 1s ease-out forwards;
+    border-radius: 0 0 16px 16px;
   }
 
   @keyframes drop {

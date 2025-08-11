@@ -33,7 +33,7 @@
 	let selectedOption: number | null = $state(null);
 	let answerResult: AnswerResult | null = $state(null);
 	let isLoading: boolean = $state(false);
-	
+
 	const isLastQuestion = $derived(progress.answered === progress.total - 1);
 	const currentQuestionNumber = $derived(
 		progress.total - (progress.total - progress.answered) + 1,
@@ -151,18 +151,22 @@
 	</div>
 </div>
 <div class="sticky bottom-0 z-40">
-	<div
-		class="card bg-primary-content rounded-3xl rounded-b-none w-full"
-	>
+	<div class="card bg-primary-content rounded-3xl rounded-b-none w-full">
 		<div class="card-body p-4">
 			{#if answerResult !== null}
 				{#if answerResult.isCorrect}
+					<CorrectAnswerEffect
+						duration={SHOW_RESULT_DURATION_SECONDS*1000}
+					/>
 					<div
 						class="mb-4 bg-success text-success-content p-4 rounded-lg"
 					>
 						<span class="text-xl">{RIGHT_ANSWER} 🎉</span>
 					</div>
 				{:else}
+					<WrongAnswerEffect
+						duration={SHOW_RESULT_DURATION_SECONDS*1000}
+					/>
 					<div
 						class="mb-4 bg-error text-error-content p-4 rounded-lg"
 					>
@@ -237,10 +241,3 @@
 		</div>
 	</div>
 </div>
-{#if answerResult !== null}
-	{#if answerResult?.isCorrect}
-		<CorrectAnswerEffect duration={SHOW_RESULT_DURATION_SECONDS} />
-	{:else}
-		<WrongAnswerEffect duration={SHOW_RESULT_DURATION_SECONDS} />
-	{/if}
-{/if}

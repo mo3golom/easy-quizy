@@ -19,7 +19,6 @@
 	let isTelegramApp: boolean = $state(false);
 
 	onMount(async () => {
-		mockEnvironment();
 		restoreUser();
 
 		try {

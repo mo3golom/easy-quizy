@@ -9,7 +9,7 @@ Full-stack quiz application for Telegram Mini Apps with Go backend and SvelteKit
 
 ```
 ┌─────────────────┐    HTTP/REST    ┌─────────────────┐
-│   SvelteKit     │◄──────────────►│   Go Backend    │
+│   SvelteKit     │◄───────────────►│   Go Backend    │
 │   Frontend      │                 │   (Gin + SQLX)  │
 │                 │                 │                 │
 │ • Components    │                 │ • API Layer     │

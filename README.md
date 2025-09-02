@@ -1,4 +1,4 @@
-# Easy Quizy
+e # Easy Quizy
 
 A full-stack quiz application built with Go backend and SvelteKit frontend, featuring unified Docker deployment and flexible development workflows.
 
@@ -12,7 +12,6 @@ A full-stack quiz application built with Go backend and SvelteKit frontend, feat
 - **npm** (for frontend dependencies)
 
 ### Production Deployment with Docker
-
 The easiest way to run Easy Quizy is using Docker, which packages both the backend and frontend into a single container.
 
 #### Build and Run

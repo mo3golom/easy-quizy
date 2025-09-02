@@ -1,4 +1,4 @@
-name: build
+isabname: build
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -55,7 +55,7 @@ jobs:
   migrations:
     runs-on: ubuntu-latest
     needs: build
-    if: github.event.pull_request.merged == true
+    if: false
     permissions:
       contents: read
       packages: write

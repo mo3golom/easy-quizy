@@ -64,7 +64,7 @@ func (r *DefaultRepository) GetDailyGame(ctx context.Context) (model.Game, error
 			g.payload, 
 			g.created_at
 		from easy_quizy_game g
-		inner join game_daily gd on g.id = gd.game_id
+		inner join easy_quizy_game_daily gd on g.id = gd.game_id
 		where gd.ended_at is null
 		order by gd.created_at asc
 		limit 1

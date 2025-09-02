@@ -39,7 +39,7 @@ func (r *DefaultRepository) db(ctx context.Context) trmsqlx.Tr {
 
 func (r *DefaultRepository) InsertSource(ctx context.Context, user model.UserSource) error {
 	const query = `
-	   insert into user_source
+	   insert into easy_quizy_user_source
 	   (user_id_int, user_id_ext, "source")
 	   values ($1, $2, $3)
 	   on conflict (user_id_ext, "source") do nothing
@@ -59,7 +59,7 @@ func (r *DefaultRepository) InsertSource(ctx context.Context, user model.UserSou
 func (r *DefaultRepository) GetUserBySource(ctx context.Context, userIDext string, source string) (model.User, error) {
 	const query = `
   	   select user_id_int, user_id_ext, "source"
-  	   from user_source
+  	   from easy_quizy_user_source
   	   where user_id_ext= $1 and source = $2
 	`
 
@@ -79,7 +79,7 @@ func (r *DefaultRepository) GetUserBySource(ctx context.Context, userIDext strin
 
 func (r *DefaultRepository) InsertUserChat(ctx context.Context, user model.UserChat) error {
 	const query = `
-	   insert into user_chat
+	   insert into easy_quizy_user_chat
 	   (user_id, chat_id, chat_type)
 	   values ($1, $2, $3)
 	   on conflict (user_id, chat_id) do nothing
@@ -99,7 +99,7 @@ func (r *DefaultRepository) InsertUserChat(ctx context.Context, user model.UserC
 func (r *DefaultRepository) GetUserChat(ctx context.Context, userID uuid.UUID, chatID int64) (model.UserChat, error) {
 	const query = `
 	   select user_id, chat_id, chat_type
-	   from user_chat
+	   from easy_quizy_user_chat
 	   where user_id = $1 and chat_id = $2
 	`
 

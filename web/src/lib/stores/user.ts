@@ -1,10 +1,11 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { User } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 
 const defaultUser: User = {
-    id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+    id: uuidv4(),
     username: "default",
     source: "browser",
 };

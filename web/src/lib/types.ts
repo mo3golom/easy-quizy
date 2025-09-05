@@ -1,6 +1,6 @@
 export type Source = 'browser' | 'telegram' | string;
 export interface User {
-	id: number;
+	id: number | string;
 	language_code?: string;
 	username?: string;
 	source: Source;

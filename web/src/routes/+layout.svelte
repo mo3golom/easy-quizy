@@ -6,7 +6,6 @@
 	import { initData } from "@telegram-apps/sdk";
 	import { setTelegramUser, restoreUser} from "$lib/stores/user";
 	import Loading from "$lib/components/Loading.svelte";
-	import TelegramOnlyScreen from "$lib/components/TelegramOnlyScreen.svelte";
 	import { goto } from "$app/navigation";
 
 	interface Props {
@@ -71,8 +70,6 @@
 <main class="min-h-screen bg-primary-content relative">
 	{#if isLoading}
 		<Loading />
-	{:else if !isTelegramApp}
-		<TelegramOnlyScreen />
 	{:else}
 		{@render children?.()}
 	{/if}
